@@ -1,0 +1,114 @@
+---
+title: "Google Personal Analysis"
+author: "Johannes Harmse"
+date: "November 23, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+```{r, message = FALSE}
+library(tidyverse)
+library(rjson)
+library(lubridate)
+library(forcats)
+library(countrycode)
+```
+
+```{r}
+# browse_hist <- fromJSON(file = "../data/Chrome/BrowserHistory.json")
+location_hist <- fromJSON(file = "../data/Location History/Location History.json")
+```
+
+```{r}
+# browse_hist[[1]][1]
+```
+
+```{r}
+location_hist[[1]][1]
+```
+
+```{r}
+as_datetime(as.numeric(substr(location_hist[[1]][[1]][[1]], 1, nchar(location_hist[[1]][[1]][[1]])-3)), 
+            tz = "America/Vancouver")
+```
+
+```{r}
+location_df <- data_frame(time = sapply(1:length(location_hist[[1]]), function(x) location_hist[[1]][[x]]$timestampMs), 
+                          lat = sapply(1:length(location_hist[[1]]), function(x) location_hist[[1]][[x]]$latitudeE7), 
+                          long = sapply(1:length(location_hist[[1]]), function(x) location_hist[[1]][[x]]$longitudeE7), 
+                          accuracy = sapply(1:length(location_hist[[1]]), function(x) location_hist[[1]][[x]]$accuracy), 
+                          altitude = sapply(1:length(location_hist[[1]]), function(x) location_hist[[1]][[x]]$altitude))
+```
+
+```{r}
+location_df <- location_df %>% 
+  mutate(time = as_datetime(as.numeric(time)/1000), 
+         long = long/10^7, 
+         lat = lat/10^7)
+```
+
+```{r}
+location_summary <- location_df %>% 
+  group_by(lat, long, time = year(time)) %>% 
+  summarise(count = n())
+```
+
+```{r}
+mapData <- map_data("world") %>%
+		mutate(ISO = countrycode(region, "country.name", "iso2c"), 
+		       lat_cat = lat, 
+		       long_cat = long)
+```
+
+```{r}
+
+for (a in 1:nrow(location_summary)){
+  location_summary[a, "order"] = 
+    mapData[which.min(abs(location_summary[[a, "lat"]] - mapData$lat) + abs(location_summary[[a, "long"]] - mapData$long)), "order"]
+}
+```
+
+```{r}
+# location_map <- 
+location_map <- full_join(mapData, location_summary, by = c("order"))
+```
+
+```{r}
+#location_map$time = as.factor(location_map$time)
+#location_map$time %>% fct_relevel
+```
+
+```{r}
+gapCodes <- gapminder %>%
+		filter(year == max(year)) %>%
+		mutate(ISO = countrycode(country, "country.name", "iso2c"))
+
+gapminder_map <- left_join(mapData, gapCodes, by = "ISO")
+glimpse(gapminder_map)
+```
+
+```{r}
+location_map <- location_map %>% 
+  group_by(group) %>% 
+  mutate(time = max(time, na.rm = TRUE), 
+         count = max(count, na.rm = TRUE))
+```
+
+```{r}
+ggplot(location_map %>% filter(region == "South Africa")) + 
+	geom_polygon(aes(x = long.x, y = lat.x, group = group)) + 
+  geom_point(aes(x = long.y, y = lat.y, colour = count)) + 
+	labs(x = "Longitude", y = "Latitude") + 
+  scale_colour_continuous()
+	#scale_fill_continuous("Life\nexpectancy", labels = unit_format(unit = "years"))
+```
+
+
+
+
+
+
+
