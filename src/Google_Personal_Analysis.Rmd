@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, fig.show = "animate")
 ```
 
 ```{r, message = FALSE}
@@ -15,6 +15,10 @@ library(rjson)
 library(lubridate)
 library(forcats)
 library(countrycode)
+# devtools::install_github("dgrtwo/gganimate")
+library(gganimate)
+library(ggmap)
+library(animation)
 ```
 
 ```{r}
@@ -46,21 +50,96 @@ location_df <- data_frame(time = sapply(1:length(location_hist[[1]]), function(x
 ```{r}
 location_df <- location_df %>% 
   mutate(time = as_datetime(as.numeric(time)/1000), 
-         long = long/10^7, 
-         lat = lat/10^7)
+         long = round(long/10^7, 1), 
+         lat = round(lat/10^7, 1))
 ```
 
 ```{r}
 location_summary <- location_df %>% 
-  group_by(lat, long, time = year(time)) %>% 
-  summarise(count = n())
+  arrange(time) %>% 
+  mutate(lag_lat = lag(lat), lag_long = lag(long), day = ymd(substr(as.character(time), 1, 10))) %>% 
+  select(time, lag_lat, lat, lag_long, long, day)
 ```
 
 ```{r}
-mapData <- map_data("world") %>%
-		mutate(ISO = countrycode(region, "country.name", "iso2c"), 
-		       lat_cat = lat, 
-		       long_cat = long)
+
+mapData <- get_googlemap(center = c(0, 0), zoom = 1, maptype = "terrain", source = "google", size = c(360, 240), scale = 1)
+
+# mapData <- map_data("world") %>%
+# 		mutate(ISO = countrycode(region, "country.name", "iso2c"), 
+# 		       lat_cat = lat, 
+# 		       long_cat = long)
+#mapData <- get_map(location = c(-122.080954, 36.971709), maptype = "terrain", source = "google", zoom = 14)
+# mapData <- get_googlemap(center = c(0, 0), # center = c(location_summary$lag_long[[2]], location_summary$lag_lat[[2]]), 
+#   maptype = "roadmap", 
+#                          zoom = 1, 
+#                          size = c(144, 144), scale = 1)
+
+# # ggplot(location_summary, colour = time) + 
+#   ggmap(mapData) + 
+#     ggplot(location_summary[1:1000, ], frame = time) + 
+#   geom_segment(data = location_summary, aes(x = lag_long, xend = long, y = lag_lat, yend = lat, colour = time))
+
+ggmap(mapData)
+
+
+
+```
+
+```{r}
+plot_map <- function(location_summary, period = 10){
+  location_summary <- location_summary
+  
+  ggmapdata <- ggmap(mapData)
+    
+    temp_filt <- location_summary
+  
+    start = 1
+    start_plot = 1
+    lat_start = 0
+    long_start = 0
+     
+    plot_seq <- seq(period, nrow(temp_filt), 100)
+    
+    for (count in 1:length(plot_seq)){
+      if((abs(min(temp_filt$lat[start:(plot_seq[count])]) - 
+             max(temp_filt$lat[start:(plot_seq[count])])) > 2.5 || 
+          abs(min(temp_filt$long[start:(plot_seq[count])]) - 
+             max(temp_filt$long[start:(plot_seq[count])])) > 2.5) && 
+         (interval(min(temp_filt$time[start:(plot_seq[count])]),  
+             max(temp_filt$time[start:(plot_seq[count])]))/ddays(1) > 5)){
+        
+        plot_period <- seq(start_plot, plot_seq[count], length.out = ifelse(plot_seq[count] - start > 5, 5, 
+                                                                          plot_seq[count] - start))  
+        temp <- temp_filt[plot_period, ]
+        
+        start_plot = plot_seq[count - 1]
+        start = plot_seq[count]
+        #start_plot = start
+        #start = plot_seq[count-1]
+        
+        p <- ggmapdata + 
+            geom_path(data = temp, size = 1, aes(x = long, y = lat, colour = time)) + 
+            labs(title = "Location Data")
+        print(p)
+        
+      }
+    }
+}
+```
+
+```{r}
+# npoints = 100
+# oopt = ani.options(interval = 1, nmax = npoints)
+
+# animation::saveGIF(plot_map(),interval = 0.1, width = 580, height = 400)
+
+saveHTML({plot_map(location_summary, period = 10)}, img.name = "anim_plot", imgdir = "anim_dir", 
+         htmlfile = "anim.html", autobrowse = FALSE, title = "Travel", 
+         verbose =FALSE, interval = 0.5, ani.width = 480, ani.height = 480)
+
+graphics.off()
+
 ```
 
 ```{r}
