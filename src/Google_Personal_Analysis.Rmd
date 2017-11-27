@@ -50,8 +50,8 @@ location_df <- data_frame(time = sapply(1:length(location_hist[[1]]), function(x
 ```{r}
 location_df <- location_df %>% 
   mutate(time = as_datetime(as.numeric(time)/1000), 
-         long = round(long/10^7, 1), 
-         lat = round(lat/10^7, 1))
+         long = round(long/10^7, 3), 
+         lat = round(lat/10^7, 3))
 ```
 
 ```{r}
@@ -105,10 +105,12 @@ plot_map <- function(location_summary, period = 10){
     
     for (count in 1:length(unique(temp_filt$day))){
       temp[nrow(temp) + 1, "period" ] = unique(temp_filt$day)[count]
-      temp[nrow(temp), "long_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
-      temp[nrow(temp), "long_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
-      temp[nrow(temp), "lat_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
-      temp[nrow(temp), "lat_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
+      temp[nrow(temp), "long_avg"] = mean(unlist(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"][as.integer(seq(1, nrow(temp_filt[temp_filt$day == unique(temp_filt$day)[count], ]), length.out = 50)), ]), na.rm = TRUE)
+      temp[nrow(temp), "lat_avg"] = mean(unlist(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"][as.integer(seq(1, nrow(temp_filt[temp_filt$day == unique(temp_filt$day)[count], ]), length.out = 50)), ]), na.rm = TRUE)
+      # temp[nrow(temp), "long_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
+      # temp[nrow(temp), "long_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
+      # temp[nrow(temp), "lat_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
+      # temp[nrow(temp), "lat_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
     }
     
     # for (count in 1:length(plot_seq)){
@@ -154,8 +156,9 @@ plot_map <- function(location_summary, period = 10){
     
     for (counter in 1:nrow(temp)){
       temp_sq <- temp[1:counter, ]
-      coord_sq <- data_frame(x_sq = unlist(list(rep(temp_sq$long_min, 2), rep(temp_sq$long_max, 2))), 
-      y_sq = unlist(list(temp_sq$lat_min, rep(temp_sq$lat_max, 2), temp_sq$lat_min)))
+      coord_sq <- data_frame(x_sq = unlist(temp_sq$long_avg), y_sq = unlist(temp_sq$lat_avg))
+      # coord_sq <- data_frame(x_sq = unlist(list(rep(temp_sq$long_min, 2), rep(temp_sq$long_max, 2))), 
+      # y_sq = unlist(list(temp_sq$lat_min, rep(temp_sq$lat_max, 2), temp_sq$lat_min)))
       # # temp_sq_long <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
       # # temp_sq_lat <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
       # # p <- ggmapdata + 
@@ -172,7 +175,7 @@ plot_map <- function(location_summary, period = 10){
       p <- ggmapdata + 
         geom_point(data = coord_sq, aes(x = x_sq, 
                                          y = y_sq), 
-                     alpha = 0.4, fill = "red", 
+                     alpha = 0.25, fill = "red", size = 2, 
                      colour = "red")
       
       # p <- p + 
@@ -193,7 +196,7 @@ plot_map <- function(location_summary, period = 10){
 
 saveHTML({plot_map(location_summary, period = 10)}, img.name = "anim_plot", imgdir = "anim_dir", 
          htmlfile = "anim.html", autobrowse = FALSE, title = "Travel", 
-         verbose =FALSE, interval = 1, ani.width = 480, ani.height = 480)
+         verbose =FALSE, interval = 0.25, ani.width = 480, ani.height = 480)
 
 graphics.off()
 
