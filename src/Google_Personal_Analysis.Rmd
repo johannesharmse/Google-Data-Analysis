@@ -103,65 +103,76 @@ plot_map <- function(location_summary, period = 10){
     
     temp = data_frame()
     
-    for (count in 1:length(plot_seq)){
-      if((abs(max(temp_filt$lat[start:(plot_seq[count])]) - 
-             min(temp_filt$lat[start:(plot_seq[count])])) > 2.5 || 
-          abs(max(temp_filt$long[start:(plot_seq[count])]) - 
-             min(temp_filt$long[start:(plot_seq[count])])) > 2.5) && 
-         (interval(min(temp_filt$time[start:(plot_seq[count])]),  
-             max(temp_filt$time[start:(plot_seq[count])]))/ddays(1) > 0)){
-        
-        # plot_period <- start_plot:plot_seq[count]
-        ## plot_period <- seq(start_plot, plot_seq[count], length.out = ifelse(plot_seq[count] - start > 5, 5, 
-        ##                                                                   plot_seq[count] - start))  
-        
-        # temp_add <- temp_filt[plot_period, ]
-        # temp_add$period <- start_plot
-        
-        temp_filt[start:plot_seq[count], "period"] = start_plot
-        temp_filt[start:plot_seq[count], "long_min"] = min(temp_filt[start:plot_seq[count], "long"])
-        temp_filt[start:plot_seq[count], "lat_min"] = min(temp_filt[start:plot_seq[count], "lat"])
-        temp_filt[start:plot_seq[count], "long_max"] = max(temp_filt[start:plot_seq[count], "long"])
-        temp_filt[start:plot_seq[count], "lat_max"] = max(temp_filt[start:plot_seq[count], "lat"])
-        
-        # point_add <- c(mean(temp_add$lat), mean(temp_add$long))
-        
-        # temp_add <- temp_filt[plot_period, ]
-        
-        # if(nrow(temp) == 0){
-        #   temp <- temp_add
-        # }else{
-        #   temp <- rbind(temp, temp_add)
-        # }
-        
-        start_plot = plot_seq[count]
-        start = plot_seq[count]
-        #start_plot = start
-        #start = plot_seq[count-1]
-        
-      }
+    for (count in 1:length(unique(temp_filt$day))){
+      temp[nrow(temp) + 1, "period" ] = unique(temp_filt$day)[count]
+      temp[nrow(temp), "long_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
+      temp[nrow(temp), "long_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
+      temp[nrow(temp), "lat_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
+      temp[nrow(temp), "lat_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
     }
     
-    temp <- temp_filt
+    # for (count in 1:length(plot_seq)){
+    #   if((abs(max(temp_filt$lat[start:(plot_seq[count])]) - 
+    #          min(temp_filt$lat[start:(plot_seq[count])])) > 2.5 || 
+    #       abs(max(temp_filt$long[start:(plot_seq[count])]) - 
+    #          min(temp_filt$long[start:(plot_seq[count])])) > 2.5) && 
+    #      (interval(min(temp_filt$time[start:(plot_seq[count])]),  
+    #          max(temp_filt$time[start:(plot_seq[count])]))/ddays(1) > 0)){
+    #     
+    #     # plot_period <- start_plot:plot_seq[count]
+    #     ## plot_period <- seq(start_plot, plot_seq[count], length.out = ifelse(plot_seq[count] - start > 5, 5, 
+    #     ##                                                                   plot_seq[count] - start))  
+    #     
+    #     # temp_add <- temp_filt[plot_period, ]
+    #     # temp_add$period <- start_plot
+    #     
+    #     temp_filt[start:plot_seq[count], "period"] = start_plot
+    #     temp_filt[start:plot_seq[count], "long_min"] = min(temp_filt[start:plot_seq[count], "long"])
+    #     temp_filt[start:plot_seq[count], "lat_min"] = min(temp_filt[start:plot_seq[count], "lat"])
+    #     temp_filt[start:plot_seq[count], "long_max"] = max(temp_filt[start:plot_seq[count], "long"])
+    #     temp_filt[start:plot_seq[count], "lat_max"] = max(temp_filt[start:plot_seq[count], "lat"])
+    #     
+    #     # point_add <- c(mean(temp_add$lat), mean(temp_add$long))
+    #     
+    #     # temp_add <- temp_filt[plot_period, ]
+    #     
+    #     # if(nrow(temp) == 0){
+    #     #   temp <- temp_add
+    #     # }else{
+    #     #   temp <- rbind(temp, temp_add)
+    #     # }
+    #     
+    #     start_plot = plot_seq[count]
+    #     start = plot_seq[count]
+    #     #start_plot = start
+    #     #start = plot_seq[count-1]
+    #     
+    #   }
+    # }
     
-    for (period in 1:length(unique(temp$period))){
-      temp_sq <- temp[temp$period == unique(temp$period)[period], ][1, ]
-      coord_sq <- data_frame(x_sq = unlist(list(rep(temp_sq$long_min[1], 2), rep(temp_sq$long_max[1], 2))), 
-      y_sq = unlist(list(temp_sq$lat_min[1], rep(temp_sq$lat_max[1], 2), temp_sq$lat_min[1])))
-      # temp_sq_long <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
-      # temp_sq_lat <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
-      # p <- ggmapdata + 
-        #   geom_path(data = temp, size = 1, aes(x = long, y = lat, colour = time)) + 
-        #   labs(title = "Location Data") + 
-        #   scale_color_gradientn(colours = terrain.colors(10))
-      if (period == 1){
-        p <- ggmapdata
-      }
+    # temp <- temp_filt
+    
+    for (counter in 1:nrow(temp)){
+      temp_sq <- temp[1:counter, ]
+      coord_sq <- data_frame(x_sq = unlist(list(rep(temp_sq$long_min, 2), rep(temp_sq$long_max, 2))), 
+      y_sq = unlist(list(temp_sq$lat_min, rep(temp_sq$lat_max, 2), temp_sq$lat_min)))
+      # # temp_sq_long <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
+      # # temp_sq_lat <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
+      # # p <- ggmapdata + 
+      #   #   geom_path(data = temp, size = 1, aes(x = long, y = lat, colour = time)) + 
+      #   #   labs(title = "Location Data") + 
+      #   #   scale_color_gradientn(colours = terrain.colors(10))
       
-      p <- p + 
-        geom_polygon(data = coord_sq, aes(x = x_sq, 
+      # coord_sq <- temp[temp$period == unique(temp$period)[period], ]
+      
+      # if (period == 1){
+      #   p <- ggmapdata
+      # }
+      
+      p <- ggmapdata + 
+        geom_point(data = coord_sq, aes(x = x_sq, 
                                          y = y_sq), 
-                     alpha = 0.5, fill = "red", 
+                     alpha = 0.4, fill = "red", 
                      colour = "red")
       
       # p <- p + 
