@@ -62,6 +62,11 @@ location_summary <- location_df %>%
 ```
 
 ```{r}
+location_summary <- location_summary %>% 
+  distinct(lat, long, .keep_all = TRUE)
+```
+
+```{r}
 
 mapData <- get_googlemap(center = c(0, 0), zoom = 1, maptype = "terrain", source = "google", size = c(360, 240), scale = 1)
 
@@ -87,7 +92,7 @@ ggmap(mapData)
 ```
 
 ```{r}
-plot_map <- function(location_summary, period = 10){
+plot_map <- function(location_summary, period = 10, plot_period = "daily"){
   location_summary <- location_summary
   
   ggmapdata <- ggmap(mapData)
@@ -103,87 +108,148 @@ plot_map <- function(location_summary, period = 10){
     
     temp = data_frame()
     
-    for (count in 1:length(unique(temp_filt$day))){
-      temp[nrow(temp) + 1, "period" ] = unique(temp_filt$day)[count]
-      temp[nrow(temp), "long_avg"] = mean(unlist(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"][as.integer(seq(1, nrow(temp_filt[temp_filt$day == unique(temp_filt$day)[count], ]), length.out = 50)), ]), na.rm = TRUE)
-      temp[nrow(temp), "lat_avg"] = mean(unlist(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"][as.integer(seq(1, nrow(temp_filt[temp_filt$day == unique(temp_filt$day)[count], ]), length.out = 50)), ]), na.rm = TRUE)
-      # temp[nrow(temp), "long_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
-      # temp[nrow(temp), "long_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
-      # temp[nrow(temp), "lat_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
-      # temp[nrow(temp), "lat_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
-    }
     
-    # for (count in 1:length(plot_seq)){
-    #   if((abs(max(temp_filt$lat[start:(plot_seq[count])]) - 
-    #          min(temp_filt$lat[start:(plot_seq[count])])) > 2.5 || 
-    #       abs(max(temp_filt$long[start:(plot_seq[count])]) - 
-    #          min(temp_filt$long[start:(plot_seq[count])])) > 2.5) && 
-    #      (interval(min(temp_filt$time[start:(plot_seq[count])]),  
-    #          max(temp_filt$time[start:(plot_seq[count])]))/ddays(1) > 0)){
-    #     
-    #     # plot_period <- start_plot:plot_seq[count]
-    #     ## plot_period <- seq(start_plot, plot_seq[count], length.out = ifelse(plot_seq[count] - start > 5, 5, 
-    #     ##                                                                   plot_seq[count] - start))  
-    #     
-    #     # temp_add <- temp_filt[plot_period, ]
-    #     # temp_add$period <- start_plot
-    #     
-    #     temp_filt[start:plot_seq[count], "period"] = start_plot
-    #     temp_filt[start:plot_seq[count], "long_min"] = min(temp_filt[start:plot_seq[count], "long"])
-    #     temp_filt[start:plot_seq[count], "lat_min"] = min(temp_filt[start:plot_seq[count], "lat"])
-    #     temp_filt[start:plot_seq[count], "long_max"] = max(temp_filt[start:plot_seq[count], "long"])
-    #     temp_filt[start:plot_seq[count], "lat_max"] = max(temp_filt[start:plot_seq[count], "lat"])
-    #     
-    #     # point_add <- c(mean(temp_add$lat), mean(temp_add$long))
-    #     
-    #     # temp_add <- temp_filt[plot_period, ]
-    #     
-    #     # if(nrow(temp) == 0){
-    #     #   temp <- temp_add
-    #     # }else{
-    #     #   temp <- rbind(temp, temp_add)
-    #     # }
-    #     
-    #     start_plot = plot_seq[count]
-    #     start = plot_seq[count]
-    #     #start_plot = start
-    #     #start = plot_seq[count-1]
-    #     
-    #   }
+      
+  if (plot_period == "daily"){
+    for (count in 1:nrow(temp_filt)){
+      if(interval(temp_filt$time[start], temp_filt$time[count])/ddays(1) >= 1){
+        
+        p <- ggmapdata + 
+          geom_point(data = temp_filt[1:count, ], aes(x = long, 
+                                     y = lat), 
+                 alpha = 0.05, fill = "light blue", size = 2, 
+                 colour = "blue") + 
+          geom_point(data = temp_filt[count, ], aes(x = long, 
+                                                    y = lat), 
+                     alpha = 0.5, fill = "red", size = 3, colour = "red")
+    
+        print(p)
+    
+        start = count
+        
+      }
+    }
+  }else if (plot_period == "weekly"){
+    for (count in 1:nrow(temp_filt)){
+      if(interval(temp_filt$time[start], temp_filt$time[count])/dweeks(1) >= 1){
+        
+        p <- ggmapdata + 
+          geom_point(data = temp_filt[1:count, ], aes(x = long, 
+                                     y = lat), 
+                 alpha = 0.05, fill = "light blue", size = 2, 
+                 colour = "blue") + 
+          geom_point(data = temp_filt[count, ], aes(x = long, 
+                                                    y = lat), 
+                     alpha = 0.5, fill = "red", size = 3, colour = "red")
+    
+        print(p)
+    
+        start = count
+        
+      }
+    }
+  }else if (plot_period == "annually"){
+    for (count in 1:nrow(temp_filt)){
+      if(interval(temp_filt$time[start], temp_filt$time[count])/dyears(1) >= 1){
+        
+        p <- ggmapdata + 
+          geom_point(data = temp_filt[1:count, ], aes(x = long, 
+                                     y = lat), 
+                 alpha = 0.05, fill = "light blue", size = 2, 
+                 colour = "blue") + 
+          geom_point(data = temp_filt[count, ], aes(x = long, 
+                                                    y = lat), 
+                     alpha = 0.5, fill = "red", size = 3, colour = "red")
+    
+        print(p)
+    
+        start = count
+        
+      }
+    }
+  }
+          
+      
+    #   temp[nrow(temp) + 1, "period" ] = unique(temp_filt$day)[count]
+    #   temp[nrow(temp), "long_avg"] = mean(unlist(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"][as.integer(seq(1, nrow(temp_filt[temp_filt$day == unique(temp_filt$day)[count], ]), length.out = 50)), ]), na.rm = TRUE)
+    #   temp[nrow(temp), "lat_avg"] = mean(unlist(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"][as.integer(seq(1, nrow(temp_filt[temp_filt$day == unique(temp_filt$day)[count], ]), length.out = 50)), ]), na.rm = TRUE)
+    #   # temp[nrow(temp), "long_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
+    #   # temp[nrow(temp), "long_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
+    #   # temp[nrow(temp), "lat_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
+    #   # temp[nrow(temp), "lat_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
     # }
-    
-    # temp <- temp_filt
-    
-    for (counter in 1:nrow(temp)){
-      temp_sq <- temp[1:counter, ]
-      coord_sq <- data_frame(x_sq = unlist(temp_sq$long_avg), y_sq = unlist(temp_sq$lat_avg))
-      # coord_sq <- data_frame(x_sq = unlist(list(rep(temp_sq$long_min, 2), rep(temp_sq$long_max, 2))), 
-      # y_sq = unlist(list(temp_sq$lat_min, rep(temp_sq$lat_max, 2), temp_sq$lat_min)))
-      # # temp_sq_long <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
-      # # temp_sq_lat <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
-      # # p <- ggmapdata + 
-      #   #   geom_path(data = temp, size = 1, aes(x = long, y = lat, colour = time)) + 
-      #   #   labs(title = "Location Data") + 
-      #   #   scale_color_gradientn(colours = terrain.colors(10))
-      
-      # coord_sq <- temp[temp$period == unique(temp$period)[period], ]
-      
-      # if (period == 1){
-      #   p <- ggmapdata
-      # }
-      
-      p <- ggmapdata + 
-        geom_point(data = coord_sq, aes(x = x_sq, 
-                                         y = y_sq), 
-                     alpha = 0.25, fill = "red", size = 2, 
-                     colour = "red")
-      
-      # p <- p + 
-      #   stat_ellipse(data = temp[temp$period == unique(temp$period)[period], ], aes(x = long, 
-      #                          y = lat), alpha = 0.25)
-      
-      print(p)
-    }
+    # 
+    # # for (count in 1:length(plot_seq)){
+    # #   if((abs(max(temp_filt$lat[start:(plot_seq[count])]) - 
+    # #          min(temp_filt$lat[start:(plot_seq[count])])) > 2.5 || 
+    # #       abs(max(temp_filt$long[start:(plot_seq[count])]) - 
+    # #          min(temp_filt$long[start:(plot_seq[count])])) > 2.5) && 
+    # #      (interval(min(temp_filt$time[start:(plot_seq[count])]),  
+    # #          max(temp_filt$time[start:(plot_seq[count])]))/ddays(1) > 0)){
+    # #     
+    # #     # plot_period <- start_plot:plot_seq[count]
+    # #     ## plot_period <- seq(start_plot, plot_seq[count], length.out = ifelse(plot_seq[count] - start > 5, 5, 
+    # #     ##                                                                   plot_seq[count] - start))  
+    # #     
+    # #     # temp_add <- temp_filt[plot_period, ]
+    # #     # temp_add$period <- start_plot
+    # #     
+    # #     temp_filt[start:plot_seq[count], "period"] = start_plot
+    # #     temp_filt[start:plot_seq[count], "long_min"] = min(temp_filt[start:plot_seq[count], "long"])
+    # #     temp_filt[start:plot_seq[count], "lat_min"] = min(temp_filt[start:plot_seq[count], "lat"])
+    # #     temp_filt[start:plot_seq[count], "long_max"] = max(temp_filt[start:plot_seq[count], "long"])
+    # #     temp_filt[start:plot_seq[count], "lat_max"] = max(temp_filt[start:plot_seq[count], "lat"])
+    # #     
+    # #     # point_add <- c(mean(temp_add$lat), mean(temp_add$long))
+    # #     
+    # #     # temp_add <- temp_filt[plot_period, ]
+    # #     
+    # #     # if(nrow(temp) == 0){
+    # #     #   temp <- temp_add
+    # #     # }else{
+    # #     #   temp <- rbind(temp, temp_add)
+    # #     # }
+    # #     
+    # #     start_plot = plot_seq[count]
+    # #     start = plot_seq[count]
+    # #     #start_plot = start
+    # #     #start = plot_seq[count-1]
+    # #     
+    # #   }
+    # # }
+    # 
+    # # temp <- temp_filt
+    # 
+    # for (counter in 1:nrow(temp)){
+    #   temp_sq <- temp[1:counter, ]
+    #   coord_sq <- data_frame(x_sq = unlist(temp_sq$long_avg), y_sq = unlist(temp_sq$lat_avg))
+    #   # coord_sq <- data_frame(x_sq = unlist(list(rep(temp_sq$long_min, 2), rep(temp_sq$long_max, 2))), 
+    #   # y_sq = unlist(list(temp_sq$lat_min, rep(temp_sq$lat_max, 2), temp_sq$lat_min)))
+    #   # # temp_sq_long <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
+    #   # # temp_sq_lat <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
+    #   # # p <- ggmapdata + 
+    #   #   #   geom_path(data = temp, size = 1, aes(x = long, y = lat, colour = time)) + 
+    #   #   #   labs(title = "Location Data") + 
+    #   #   #   scale_color_gradientn(colours = terrain.colors(10))
+    #   
+    #   # coord_sq <- temp[temp$period == unique(temp$period)[period], ]
+    #   
+    #   # if (period == 1){
+    #   #   p <- ggmapdata
+    #   # }
+    #   
+    #   p <- ggmapdata + 
+    #     geom_point(data = coord_sq, aes(x = x_sq, 
+    #                                      y = y_sq), 
+    #                  alpha = 0.25, fill = "red", size = 2, 
+    #                  colour = "red")
+    #   
+    #   # p <- p + 
+    #   #   stat_ellipse(data = temp[temp$period == unique(temp$period)[period], ], aes(x = long, 
+    #   #                          y = lat), alpha = 0.25)
+    #   
+    #   print(p)
+    # }
     
 }
 ```
@@ -194,7 +260,7 @@ plot_map <- function(location_summary, period = 10){
 
 # animation::saveGIF(plot_map(),interval = 0.1, width = 580, height = 400)
 
-saveHTML({plot_map(location_summary, period = 10)}, img.name = "anim_plot", imgdir = "anim_dir", 
+saveHTML({plot_map(location_summary, period = 10, plot_period = "weekly")}, img.name = "anim_plot", imgdir = "anim_dir", 
          htmlfile = "anim.html", autobrowse = FALSE, title = "Travel", 
          verbose =FALSE, interval = 0.25, ani.width = 480, ani.height = 480)
 
