@@ -19,15 +19,17 @@ library(countrycode)
 library(gganimate)
 library(ggmap)
 library(animation)
+library(NLP)
+library(stringr)
 ```
 
 ```{r}
-# browse_hist <- fromJSON(file = "../data/Chrome/BrowserHistory.json")
+browse_hist <- fromJSON(file = "../data/Chrome/BrowserHistory.json")
 location_hist <- fromJSON(file = "../data/Location History/Location History.json")
 ```
 
 ```{r}
-# browse_hist[[1]][1]
+browse_hist[[1]][1]
 ```
 
 ```{r}
@@ -40,6 +42,13 @@ as_datetime(as.numeric(substr(location_hist[[1]][[1]][[1]], 1, nchar(location_hi
 ```
 
 ```{r}
+browse_df <- data_frame(time = sapply(1:length(browse_hist[[1]]), function(x) browse_hist[[1]][[x]]$time_usec), 
+                        page_transition = sapply(1:length(browse_hist[[1]]), function(x) browse_hist[[1]][[x]]$page_transition), 
+                        title = sapply(1:length(browse_hist[[1]]), function(x) browse_hist[[1]][[x]]$title), 
+                        url = sapply(1:length(browse_hist[[1]]), function(x) browse_hist[[1]][[x]]$url))
+```
+
+```{r}
 location_df <- data_frame(time = sapply(1:length(location_hist[[1]]), function(x) location_hist[[1]][[x]]$timestampMs), 
                           lat = sapply(1:length(location_hist[[1]]), function(x) location_hist[[1]][[x]]$latitudeE7), 
                           long = sapply(1:length(location_hist[[1]]), function(x) location_hist[[1]][[x]]$longitudeE7), 
@@ -48,10 +57,19 @@ location_df <- data_frame(time = sapply(1:length(location_hist[[1]]), function(x
 ```
 
 ```{r}
+rm(browse_hist, location_hist)
+```
+
+```{r}
 location_df <- location_df %>% 
   mutate(time = as_datetime(as.numeric(time)/1000), 
          long = round(long/10^7, 3), 
          lat = round(lat/10^7, 3))
+```
+
+```{r}
+browse_summary <- browse_df %>% 
+  mutate(time = as_datetime(as.numeric(time)/1000000))
 ```
 
 ```{r}
@@ -64,6 +82,31 @@ location_summary <- location_df %>%
 ```{r}
 location_summary <- location_summary %>% 
   distinct(lat, long, .keep_all = TRUE)
+```
+
+```{r}
+browse_time_range = c(min(browse_summary$time), max(browse_summary$time))
+location_time_range = c(min(location_summary$time), max(location_summary$time))
+
+browse_summary <- browse_summary %>% 
+  filter(time >= max(c(browse_time_range[1], location_time_range[1])) & 
+           time <= min(c(browse_time_range[2], location_time_range[2]))) %>% 
+  arrange(time)
+
+location_summary <- location_summary %>% 
+  filter(time >= max(c(browse_time_range[1], location_time_range[1])) & 
+           time <= min(c(browse_time_range[2], location_time_range[2]))) %>% 
+  arrange(time)
+
+```
+
+```{r}
+browse_summary <- browse_summary %>% 
+  filter(!str_detect(title, regex('gmail|insta|facebook', ignore_case = TRUE)))
+```
+
+```{r}
+rm(location_df, browse_df)
 ```
 
 ```{r}
@@ -113,6 +156,8 @@ plot_map <- function(location_summary, period = 10, plot_period = "daily"){
   if (plot_period == "daily"){
     for (count in 1:nrow(temp_filt)){
       if(interval(temp_filt$time[start], temp_filt$time[count])/ddays(1) >= 1){
+        
+        searches <- paste(browse_summary$title)
         
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
@@ -168,88 +213,6 @@ plot_map <- function(location_summary, period = 10, plot_period = "daily"){
       }
     }
   }
-          
-      
-    #   temp[nrow(temp) + 1, "period" ] = unique(temp_filt$day)[count]
-    #   temp[nrow(temp), "long_avg"] = mean(unlist(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"][as.integer(seq(1, nrow(temp_filt[temp_filt$day == unique(temp_filt$day)[count], ]), length.out = 50)), ]), na.rm = TRUE)
-    #   temp[nrow(temp), "lat_avg"] = mean(unlist(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"][as.integer(seq(1, nrow(temp_filt[temp_filt$day == unique(temp_filt$day)[count], ]), length.out = 50)), ]), na.rm = TRUE)
-    #   # temp[nrow(temp), "long_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
-    #   # temp[nrow(temp), "long_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "long"])
-    #   # temp[nrow(temp), "lat_min"] = min(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
-    #   # temp[nrow(temp), "lat_max"] = max(temp_filt[temp_filt$day == unique(temp_filt$day)[count], "lat"])
-    # }
-    # 
-    # # for (count in 1:length(plot_seq)){
-    # #   if((abs(max(temp_filt$lat[start:(plot_seq[count])]) - 
-    # #          min(temp_filt$lat[start:(plot_seq[count])])) > 2.5 || 
-    # #       abs(max(temp_filt$long[start:(plot_seq[count])]) - 
-    # #          min(temp_filt$long[start:(plot_seq[count])])) > 2.5) && 
-    # #      (interval(min(temp_filt$time[start:(plot_seq[count])]),  
-    # #          max(temp_filt$time[start:(plot_seq[count])]))/ddays(1) > 0)){
-    # #     
-    # #     # plot_period <- start_plot:plot_seq[count]
-    # #     ## plot_period <- seq(start_plot, plot_seq[count], length.out = ifelse(plot_seq[count] - start > 5, 5, 
-    # #     ##                                                                   plot_seq[count] - start))  
-    # #     
-    # #     # temp_add <- temp_filt[plot_period, ]
-    # #     # temp_add$period <- start_plot
-    # #     
-    # #     temp_filt[start:plot_seq[count], "period"] = start_plot
-    # #     temp_filt[start:plot_seq[count], "long_min"] = min(temp_filt[start:plot_seq[count], "long"])
-    # #     temp_filt[start:plot_seq[count], "lat_min"] = min(temp_filt[start:plot_seq[count], "lat"])
-    # #     temp_filt[start:plot_seq[count], "long_max"] = max(temp_filt[start:plot_seq[count], "long"])
-    # #     temp_filt[start:plot_seq[count], "lat_max"] = max(temp_filt[start:plot_seq[count], "lat"])
-    # #     
-    # #     # point_add <- c(mean(temp_add$lat), mean(temp_add$long))
-    # #     
-    # #     # temp_add <- temp_filt[plot_period, ]
-    # #     
-    # #     # if(nrow(temp) == 0){
-    # #     #   temp <- temp_add
-    # #     # }else{
-    # #     #   temp <- rbind(temp, temp_add)
-    # #     # }
-    # #     
-    # #     start_plot = plot_seq[count]
-    # #     start = plot_seq[count]
-    # #     #start_plot = start
-    # #     #start = plot_seq[count-1]
-    # #     
-    # #   }
-    # # }
-    # 
-    # # temp <- temp_filt
-    # 
-    # for (counter in 1:nrow(temp)){
-    #   temp_sq <- temp[1:counter, ]
-    #   coord_sq <- data_frame(x_sq = unlist(temp_sq$long_avg), y_sq = unlist(temp_sq$lat_avg))
-    #   # coord_sq <- data_frame(x_sq = unlist(list(rep(temp_sq$long_min, 2), rep(temp_sq$long_max, 2))), 
-    #   # y_sq = unlist(list(temp_sq$lat_min, rep(temp_sq$lat_max, 2), temp_sq$lat_min)))
-    #   # # temp_sq_long <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
-    #   # # temp_sq_lat <- unlist(temp[temp$period == unique(temp$period)[period], c("long_min", "long_max")])
-    #   # # p <- ggmapdata + 
-    #   #   #   geom_path(data = temp, size = 1, aes(x = long, y = lat, colour = time)) + 
-    #   #   #   labs(title = "Location Data") + 
-    #   #   #   scale_color_gradientn(colours = terrain.colors(10))
-    #   
-    #   # coord_sq <- temp[temp$period == unique(temp$period)[period], ]
-    #   
-    #   # if (period == 1){
-    #   #   p <- ggmapdata
-    #   # }
-    #   
-    #   p <- ggmapdata + 
-    #     geom_point(data = coord_sq, aes(x = x_sq, 
-    #                                      y = y_sq), 
-    #                  alpha = 0.25, fill = "red", size = 2, 
-    #                  colour = "red")
-    #   
-    #   # p <- p + 
-    #   #   stat_ellipse(data = temp[temp$period == unique(temp$period)[period], ], aes(x = long, 
-    #   #                          y = lat), alpha = 0.25)
-    #   
-    #   print(p)
-    # }
     
 }
 ```
@@ -266,49 +229,6 @@ saveHTML({plot_map(location_summary, period = 10, plot_period = "weekly")}, img.
 
 graphics.off()
 
-```
-
-```{r}
-
-for (a in 1:nrow(location_summary)){
-  location_summary[a, "order"] = 
-    mapData[which.min(abs(location_summary[[a, "lat"]] - mapData$lat) + abs(location_summary[[a, "long"]] - mapData$long)), "order"]
-}
-```
-
-```{r}
-# location_map <- 
-location_map <- full_join(mapData, location_summary, by = c("order"))
-```
-
-```{r}
-#location_map$time = as.factor(location_map$time)
-#location_map$time %>% fct_relevel
-```
-
-```{r}
-gapCodes <- gapminder %>%
-		filter(year == max(year)) %>%
-		mutate(ISO = countrycode(country, "country.name", "iso2c"))
-
-gapminder_map <- left_join(mapData, gapCodes, by = "ISO")
-glimpse(gapminder_map)
-```
-
-```{r}
-location_map <- location_map %>% 
-  group_by(group) %>% 
-  mutate(time = max(time, na.rm = TRUE), 
-         count = max(count, na.rm = TRUE))
-```
-
-```{r}
-ggplot(location_map %>% filter(region == "South Africa")) + 
-	geom_polygon(aes(x = long.x, y = lat.x, group = group)) + 
-  geom_point(aes(x = long.y, y = lat.y, colour = count)) + 
-	labs(x = "Longitude", y = "Latitude") + 
-  scale_colour_continuous()
-	#scale_fill_continuous("Life\nexpectancy", labels = unit_format(unit = "years"))
 ```
 
 
