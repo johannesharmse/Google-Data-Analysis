@@ -102,7 +102,8 @@ location_summary <- location_summary %>%
 
 ```{r}
 browse_summary <- browse_summary %>% 
-  filter(!str_detect(title, regex('gmail|insta|facebook', ignore_case = TRUE)))
+  filter(!str_detect(title, regex('gmail|insta|facebook|broadreach|gumtree|bitbucket|jira|opportunity|linkedin|confluence|messenger|scotia|outlook|absa|new tab|eset|jokesphone|quicket|gckey|onedrive', ignore_case = TRUE))& 
+           !str_detect(url, regex('brhc|campbellco|cic|nhls|dropbox|scotiabank|absa|drive.google|facebook|insta|gmail', ignore_case = TRUE)))
 ```
 
 ```{r}
