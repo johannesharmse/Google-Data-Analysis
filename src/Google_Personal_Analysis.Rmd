@@ -102,8 +102,10 @@ location_summary <- location_summary %>%
 
 ```{r}
 browse_summary <- browse_summary %>% 
-  filter(!str_detect(title, regex('gmail|insta|facebook|broadreach|gumtree|bitbucket|jira|opportunity|linkedin|confluence|messenger|scotia|outlook|absa|new tab|eset|jokesphone|quicket|gckey|onedrive', ignore_case = TRUE))& 
-           !str_detect(url, regex('brhc|campbellco|cic|nhls|dropbox|scotiabank|absa|drive.google|facebook|insta|gmail', ignore_case = TRUE)))
+  filter((str_detect(url, regex('google.*?search|youtube.*?watch', ignore_case = TRUE)) & 
+           !str_detect(url, regex('mail', ignore_case = TRUE))) | 
+           (str_detect(title, regex('^.*?Google\ Play\ Music$', ignore_case = TRUE)) & 
+           !str_detect(title, regex('^Home - Google Play Music$|^Google Play Music$', ignore_case = TRUE)))) 
 ```
 
 ```{r}
@@ -112,24 +114,11 @@ rm(location_df, browse_df)
 
 ```{r}
 
-mapData <- get_googlemap(center = c(0, 0), zoom = 1, maptype = "terrain", source = "google", size = c(360, 240), scale = 1)
+mapData <- get_googlemap(center = c(0, 0), zoom = 1, maptype = "hybrid", source = "google", size = c(360, 240), scale = 1)
 
-# mapData <- map_data("world") %>%
-# 		mutate(ISO = countrycode(region, "country.name", "iso2c"), 
-# 		       lat_cat = lat, 
-# 		       long_cat = long)
-#mapData <- get_map(location = c(-122.080954, 36.971709), maptype = "terrain", source = "google", zoom = 14)
-# mapData <- get_googlemap(center = c(0, 0), # center = c(location_summary$lag_long[[2]], location_summary$lag_lat[[2]]), 
-#   maptype = "roadmap", 
-#                          zoom = 1, 
-#                          size = c(144, 144), scale = 1)
-
-# # ggplot(location_summary, colour = time) + 
-#   ggmap(mapData) + 
-#     ggplot(location_summary[1:1000, ], frame = time) + 
-#   geom_segment(data = location_summary, aes(x = lag_long, xend = long, y = lag_lat, yend = lat, colour = time))
-
-ggmap(mapData)
+ggmap(mapData) + 
+  scale_x_continuous(limits = c(min(location_summary$long), max(location_summary$long)), expand = c(0, 0)) +
+       scale_y_continuous(limits = c(min(location_summary$lat), max(location_summary$lat)), expand = c(0, 0))
 
 
 
@@ -219,17 +208,11 @@ plot_map <- function(location_summary, period = 10, plot_period = "daily"){
 ```
 
 ```{r}
-# npoints = 100
-# oopt = ani.options(interval = 1, nmax = npoints)
-
-# animation::saveGIF(plot_map(),interval = 0.1, width = 580, height = 400)
-
 saveHTML({plot_map(location_summary, period = 10, plot_period = "weekly")}, img.name = "anim_plot", imgdir = "anim_dir", 
-         htmlfile = "anim.html", autobrowse = FALSE, title = "Travel", 
+         htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Travel", 
          verbose =FALSE, interval = 0.25, ani.width = 480, ani.height = 480)
 
 graphics.off()
-
 ```
 
 
