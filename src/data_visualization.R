@@ -28,7 +28,7 @@ plot_map <- function(location_summary, period = 10, plot_period = "daily"){
   lat_start = 0
   long_start = 0
   
-  plot_seq <- seq(period, nrow(temp_filt), 1)
+  # plot_seq <- seq(period, nrow(temp_filt), 1)
   
   temp = data_frame()
   
@@ -56,7 +56,7 @@ plot_map <- function(location_summary, period = 10, plot_period = "daily"){
       }
     }
   }else if (plot_period == "weekly"){
-    for (count in 1:nrow(temp_filt)){
+    for (count in 2:nrow(temp_filt)){
       if(interval(temp_filt$time[start], temp_filt$time[count])/dweeks(1) >= 1){
         
         p <- ggmapdata + 
@@ -97,9 +97,11 @@ plot_map <- function(location_summary, period = 10, plot_period = "daily"){
   
 }
 
-# generate and write plots to HTML GIF
+# remove (if necessary), then generate and write plots to HTML GIF
 
-saveHTML({plot_map(location_summary, period = 10, plot_period = "weekly")}, img.name = "anim_plot", imgdir = "anim_dir", 
+do.call(file.remove, list(list.files("../results/anim_dir", full.names = TRUE)))
+
+saveHTML({plot_map(location_summary, period = 10, plot_period = "weekly")}, img.name = "anim_plot", imgdir = "../results/anim_dir", 
          htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
          verbose =FALSE, interval = 0.25, ani.width = 480, ani.height = 480)
 
