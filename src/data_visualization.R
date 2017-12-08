@@ -11,9 +11,7 @@ library(animation)
 browse_summary <- readRDS(file = "../data/R_temp/browse_summary.rds")
 location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
 
-# Load base map from Google
-
-
+# Function for plotting daily, weekly and annual location data points
 
 plot_map <- function(location_summary, period = 10, plot_period = "daily"){
   
@@ -98,4 +96,12 @@ plot_map <- function(location_summary, period = 10, plot_period = "daily"){
   }
   
 }
+
+# generate and write plots to HTML GIF
+
+saveHTML({plot_map(location_summary, period = 10, plot_period = "weekly")}, img.name = "anim_plot", imgdir = "anim_dir", 
+         htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
+         verbose =FALSE, interval = 0.25, ani.width = 480, ani.height = 480)
+
+graphics.off()
 
