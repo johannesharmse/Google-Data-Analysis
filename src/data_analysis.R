@@ -1,12 +1,7 @@
 library(tidyverse)
 library(lubridate)
 library(forcats)
-# library(countrycode)
-# devtools::install_github("dgrtwo/gganimate")
-library(gganimate)
-library(ggmap)
-library(animation)
-library(NLP)
+# library(NLP)
 library(stringr)
 
 browse_hist <- readRDS(file = "../data/R_temp/browse_hist.rds")
@@ -91,4 +86,7 @@ if (is.data.frame(browse_hist) == FALSE){
   rm(browse_hist, location_hist)
   
 }
+
+saveRDS(browse_summary, file = "../data/R_temp/browse_summary.rds")
+saveRDS(location_summary, file = "../data/R_temp/location_summary.rds")
 
