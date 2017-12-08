@@ -29,5 +29,5 @@ for (loc_dir in 1:length(locs)){
   
 }
 
-saveRDS(browse_hist, file = "../data/browse_hist.rds")
-saveRDS(location_hist, file = "../data/location_hist.rds")
+saveRDS(browse_hist, file = "../data/R_temp/browse_hist.rds")
+saveRDS(location_hist, file = "../data/R_temp/location_hist.rds")
