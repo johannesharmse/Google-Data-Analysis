@@ -29,17 +29,15 @@ if (is.data.frame(browse_hist) == FALSE){
   # clean data
   
   location_df <- location_df %>% 
-    mutate(time = as_datetime(as.numeric(time)/1000), 
-           long = round(long/10^7, 3), 
-           lat = round(lat/10^7, 3))
+    mutate(time = as_datetime(as.numeric(time)/1000))
   
   browse_summary <- browse_df %>% 
     mutate(time = as_datetime(as.numeric(time)/1000000))
   
   location_summary <- location_df %>% 
     arrange(time) %>% 
-    mutate(lag_lat = lag(lat), lag_long = lag(long), day = ymd(substr(as.character(time), 1, 10))) %>% 
-    select(time, lag_lat, lat, lag_long, long, day)
+    mutate(day = ymd(substr(as.character(time), 1, 10))) %>% 
+    select(time, lat, long, day)
   
   location_summary <- location_summary %>% 
     distinct(lat, long, .keep_all = TRUE)
