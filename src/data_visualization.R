@@ -13,11 +13,27 @@ location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
 
 # Function for plotting daily, weekly and annual location data points
 
-plot_map <- function(location_summary, period = 10, plot_period = "daily"){
+plot_map <- function(location, location_summary, period = 10, plot_period = "daily"){
   
   # location_summary <- location_summary
   
-  mapData <- get_googlemap(center = c(0, 0), zoom = 1, maptype = "hybrid", source = "google", size = c(360, 240), scale = 1)
+  mapData <- get_googlemap(location)
+  
+  borders <- attr(mapData, which = "bb")
+  
+  location_summary <- location_summary %>% 
+    filter(long <= borders$ur.lon & 
+             long >= borders$ll.lon & 
+             lat <= borders$ur.lat & 
+             lat >= borders$ll.lat)
+  
+  # zoom <- floor(10/max((max(location_summary$long) - min(location_summary$long)/(borders$ur.lon - borders$ll.lon)), 
+  #              (max(location_summary$lat) - min(location_summary$lat))/(borders$ur.lat - borders$ll.lat)))
+  
+  center <- c(min(location_summary$long) + (max(location_summary$long) - min(location_summary$long))/2, 
+              min(location_summary$lat) + (max(location_summary$lat) - min(location_summary$lat))/2)
+  
+  mapData <- get_googlemap(center = center)
   
   ggmapdata <- ggmap(mapData)
   
@@ -101,7 +117,11 @@ plot_map <- function(location_summary, period = 10, plot_period = "daily"){
 
 do.call(file.remove, list(list.files("../results/anim_dir", full.names = TRUE)))
 
-saveHTML({plot_map(location_summary, period = 10, plot_period = "weekly")}, img.name = "anim_plot", imgdir = "../results/anim_dir", 
+saveHTML({plot_map(location = "Cape Town", 
+                   location_summary, 
+                   period = 10, 
+                   plot_period = "weekly")}, 
+         img.name = "anim_plot", imgdir = "../results/anim_dir", 
          htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
          verbose =FALSE, interval = 0.25, ani.width = 480, ani.height = 480)
 
