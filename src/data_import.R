@@ -10,12 +10,14 @@ dataset_names <- c("browse_hist", "location_hist")
 for (loc_dir in 1:length(locs)){
   temp <- try(fromJSON(file = locs[[loc_dir]][1]))
   if("try-error" %in% class(temp)){
-    message("Trying next location")
+    message("Personal data not found.")
+    message("...")
+    message("Trying Sample data location.")
     temp <- try(suppressMessages(fromJSON(file = locs[[loc_dir]][2])))
     if("try-error" %in% class(temp)){
-      stop(paste0("Locations do not exist: ",  locs[[loc_dir]]))
+      stop(message("Locations do not exist: ",  locs[[loc_dir]], "Please read the README files on where to store data."))
     }else{
-      message("Location found. Continuing with script")
+      message("Location found. Continuing...")
     }  
   }
   
@@ -26,3 +28,6 @@ for (loc_dir in 1:length(locs)){
   }
   
 }
+
+saveRDS(browse_hist, file = "../data/browse_hist.rds")
+saveRDS(location_hist, file = "../data/location_hist.rds")
