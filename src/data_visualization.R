@@ -21,6 +21,14 @@ plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_pe
   
   borders <- attr(mapData, which = "bb")
   
+  if (borders$ll.lon == borders$ur.lon){
+    borders$ll.lon == borders$ll.lon - 0.05
+    borders$ur.lon == borders$ur.lon + 0.05
+  }else{
+    borders$ll.lat == borders$ll.lat - 0.05
+    borders$ur.lat == borders$ur.lat + 0.05
+  }
+  
   location_summary <- location_summary %>% 
     filter(long <= borders$ur.lon & 
              long >= borders$ll.lon & 
