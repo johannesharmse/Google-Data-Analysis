@@ -130,7 +130,7 @@ do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TR
 
 # zoom value should be between 3 and 21. (3 = continent, 21 = building)
 
-saveHTML({plot_map(location = "UBC", zoom = 15, alpha = 0.5,
+saveHTML({plot_map(location = "Vancouver", zoom = 10, alpha = 0.5,
                    location_summary, 
                    period = 10, 
                    plot_period = "weekly")}, 
