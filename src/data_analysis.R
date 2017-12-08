@@ -76,6 +76,11 @@ if (is.data.frame(browse_hist) == FALSE){
   
   rm(location_df, browse_df)
   
+  if (nrow(browse_summary) == 0 || 
+      nrow(location_summary) == 0){
+    stop(message("It seems as if there is no overlap between your browser history and location data. Cannot perform analysis"))
+  }
+  
 }else{
   
   browse_summary <- browse_hist
