@@ -1,5 +1,13 @@
 library(tidyverse)
 library(lubridate)
+library(forcats)
+# library(countrycode)
+# devtools::install_github("dgrtwo/gganimate")
+library(gganimate)
+library(ggmap)
+library(animation)
+library(NLP)
+library(stringr)
 
 browse_hist <- readRDS(file = "../data/R_temp/browse_hist.rds")
 location_hist <- readRDS(file = "../data/R_temp/location_hist.rds")
