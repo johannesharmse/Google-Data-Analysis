@@ -1,0 +1,12 @@
+library(tidyverse)
+# library(lubridate)
+# library(forcats)
+# devtools::install_github("dgrtwo/gganimate")
+library(gganimate)
+library(ggmap)
+library(animation)
+# library(NLP)
+# library(stringr)
+
+browse_summary <- readRDS(file = "../data/R_temp/browse_summary.rds")
+location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
