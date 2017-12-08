@@ -1,5 +1,5 @@
 library(tidyverse)
-# library(lubridate)
+library(lubridate)
 # library(forcats)
 # devtools::install_github("dgrtwo/gganimate")
 library(gganimate)
@@ -13,11 +13,11 @@ location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
 
 # Function for plotting daily, weekly and annual location data points
 
-plot_map <- function(location, location_summary, period = 10, plot_period = "daily"){
+plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_period = "daily", alpha = 0.2){
   
   # location_summary <- location_summary
   
-  mapData <- get_googlemap(location)
+  mapData <- get_googlemap(location, zoom = zoom)
   
   borders <- attr(mapData, which = "bb")
   
@@ -30,10 +30,12 @@ plot_map <- function(location, location_summary, period = 10, plot_period = "dai
   # zoom <- floor(10/max((max(location_summary$long) - min(location_summary$long)/(borders$ur.lon - borders$ll.lon)), 
   #              (max(location_summary$lat) - min(location_summary$lat))/(borders$ur.lat - borders$ll.lat)))
   
-  center <- c(min(location_summary$long) + (max(location_summary$long) - min(location_summary$long))/2, 
-              min(location_summary$lat) + (max(location_summary$lat) - min(location_summary$lat))/2)
+  # center <- c(min(location_summary$long) + (max(location_summary$long) - min(location_summary$long))/2, 
+  #            min(location_summary$lat) + (max(location_summary$lat) - min(location_summary$lat))/2)
   
-  mapData <- get_googlemap(center = center)
+  center <- c(median(location_summary$long), median(location_summary$lat))
+  
+  mapData <- get_googlemap(center = center, zoom = zoom)
   
   ggmapdata <- ggmap(mapData)
   
@@ -59,7 +61,8 @@ plot_map <- function(location, location_summary, period = 10, plot_period = "dai
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
                                                       y = lat), 
-                     alpha = 0.05, fill = "light blue", size = 2, 
+                     fill = "light blue", size = 2, 
+                     alpha = alpha,
                      colour = "blue") + 
           geom_point(data = temp_filt[count, ], aes(x = long, 
                                                     y = lat), 
@@ -78,7 +81,7 @@ plot_map <- function(location, location_summary, period = 10, plot_period = "dai
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
                                                       y = lat), 
-                     alpha = 0.05, fill = "light blue", size = 2, 
+                     fill = "light blue", size = 2, alpha = alpha,
                      colour = "blue") + 
           geom_point(data = temp_filt[count, ], aes(x = long, 
                                                     y = lat), 
@@ -97,7 +100,7 @@ plot_map <- function(location, location_summary, period = 10, plot_period = "dai
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
                                                       y = lat), 
-                     alpha = 0.05, fill = "light blue", size = 2, 
+                      fill = "light blue", size = 2, alpha = alpha,
                      colour = "blue") + 
           geom_point(data = temp_filt[count, ], aes(x = long, 
                                                     y = lat), 
@@ -115,9 +118,11 @@ plot_map <- function(location, location_summary, period = 10, plot_period = "dai
 
 # remove (if necessary), then generate and write plots to HTML GIF
 
-do.call(file.remove, list(list.files("../results/anim_dir", full.names = TRUE)))
+do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TRUE)))
 
-saveHTML({plot_map(location = "Cape Town", 
+# zoom value should be between 3 and 21. (3 = continent, 21 = building)
+
+saveHTML({plot_map(location = "UBC", zoom = 15, alpha = 0.5,
                    location_summary, 
                    period = 10, 
                    plot_period = "weekly")}, 
