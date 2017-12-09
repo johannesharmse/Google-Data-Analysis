@@ -45,20 +45,34 @@ plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_pe
   
   center <- c(median(location_summary$long), median(location_summary$lat))
   
-  mapData <- get_googlemap(center = center, zoom = zoom)
-  borders <- attr(mapData, which = "bb")
+  # mapData <- get_googlemap(center = center, zoom = zoom)
+  # borders <- attr(mapData, which = "bb")
+  mapplot <- ggmap(get_googlemap(center = center, zoom = zoom), extent = "device")
   
+  lon_breaks <- mapplot$data$lon
+  lat_breaks <- mapplot$data$lat
+  
+  mapplot <- mapplot + 
+      theme(axis.line=element_blank(), 
+            axis.text.x=element_blank(),
+            axis.text.y=element_blank(), 
+            axis.ticks=element_blank(),
+            axis.title.x=element_blank(),
+            axis.title.y=element_blank())
   
   png(filename = "../results/base_map.png")
-  print(ggmap(mapData))
+  print(mapplot)
   dev.off()
   
 
   base_map <- readPNG(source = "../results/base_map.png")
   ggmapdata <- rasterGrob(base_map, interpolate=TRUE)
   
-  ggmapdata <- qplot(x = seq(borders$ll.lon, borders$ur.lon, length.out = 5), 
-        y = seq(borders$ll.lat, borders$ur.lat, length.out = 5), geom="blank") +
+  ggmapdata <- qplot(x = lon_breaks, 
+        y = lat_breaks, 
+        xlim = c(min(lon_breaks), max(lon_breaks)), 
+        ylim = c(min(lat_breaks), max(lat_breaks)), 
+        geom="blank") +
     annotation_custom(ggmapdata, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)
   
   temp_filt <- location_summary
@@ -72,7 +86,9 @@ plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_pe
   
   temp = data_frame()
   
+  p <- ggmapdata
   
+  print(p)
   
   if (plot_period == "daily"){
     for (count in 1:nrow(temp_filt)){
@@ -136,6 +152,11 @@ plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_pe
     }
   }
   
+}
+
+# turn device off if it is on
+if (!is.null(dev.list())){
+  dev.off()
 }
 
 # remove (if necessary), then generate and write plots to HTML GIF
