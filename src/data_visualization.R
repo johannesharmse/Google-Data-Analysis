@@ -7,6 +7,8 @@ library(ggmap)
 library(animation)
 # library(NLP)
 # library(stringr)
+library(png)
+library(grid)
 
 browse_summary <- readRDS(file = "../data/R_temp/browse_summary.rds")
 location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
@@ -44,8 +46,20 @@ plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_pe
   center <- c(median(location_summary$long), median(location_summary$lat))
   
   mapData <- get_googlemap(center = center, zoom = zoom)
+  borders <- attr(mapData, which = "bb")
   
-  ggmapdata <- ggmap(mapData)
+  
+  png(filename = "../results/base_map.png")
+  print(ggmap(mapData))
+  dev.off()
+  
+
+  base_map <- readPNG(source = "../results/base_map.png")
+  ggmapdata <- rasterGrob(base_map, interpolate=TRUE)
+  
+  ggmapdata <- qplot(x = seq(borders$ll.lon, borders$ur.lon, length.out = 5), 
+        y = seq(borders$ll.lat, borders$ur.lat, length.out = 5), geom="blank") +
+    annotation_custom(ggmapdata, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)
   
   temp_filt <- location_summary
   
