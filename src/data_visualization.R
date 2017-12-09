@@ -6,7 +6,7 @@ library(gganimate)
 library(ggmap)
 library(animation)
 # library(NLP)
-# library(stringr)
+library(stringr)
 library(png)
 library(grid)
 
@@ -153,6 +153,21 @@ plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_pe
   }
   
 }
+
+# filter for Google Search and cleaning
+
+browse_summary <- browse_summary %>% 
+  filter(str_detect(title, " - Google Search$")) %>% 
+  mutate(title = str_sub(title, 1, str_locate(title, " - Google Search")[ ,1] - 1)) %>% 
+  distinct(str_sub(time, 1, 13), title, .keep_all = TRUE) %>% 
+  mutate(words = str_split(title, pattern = " "))
+
+# for (row in 1:nrow(browse_summary)){
+#   for (count in browse_summary[row, "words"][[1]]){
+#     
+#   }
+# }
+
 
 # turn device off if it is on
 if (!is.null(dev.list())){
