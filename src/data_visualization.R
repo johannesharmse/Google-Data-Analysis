@@ -9,13 +9,35 @@ library(animation)
 library(stringr)
 library(png)
 library(grid)
+library(cowplot)
+
 
 browse_summary <- readRDS(file = "../data/R_temp/browse_summary.rds")
 location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
 
 # Function for plotting daily, weekly and annual location data points
 
-plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_period = "daily", alpha = 0.2){
+plot_map <- function(location, zoom = 10, location_summary, browse_summary, period = 10, plot_period = "daily", alpha = 0.2, 
+                     stop_words_url = "../data/additional/stopwords.csv", n_words = 10){
+  
+  
+  stop_words <- read_csv(stop_words_url)
+  
+  # filter for Google Search and cleaning
+  
+  browse_summary <- browse_summary %>% 
+    filter(str_detect(title, " - Google Search$")) %>% 
+    mutate(title = str_sub(title, 1, str_locate(title, " - Google Search")[ ,1] - 1)) %>% 
+    distinct(ymd = str_sub(time, 1, 13), title, .keep_all = TRUE) %>% 
+    group_by(time) %>% 
+    mutate(words = list(words = unlist(str_split(title, pattern = " "))[!(unlist(str_split(title, pattern = " ")) %in% unlist(stop_words$words))]), 
+           ymd = NULL)
+  
+  top_words <- as_data_frame(table(unlist(browse_summary$words))) %>% 
+    top_n(n, n = n_words)
+    # top_n(10, beta) %>%
+    # ungroup() %>%
+    # arrange(topic, -beta)
   
   # location_summary <- location_summary
   
@@ -116,6 +138,24 @@ plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_pe
     for (count in 2:nrow(temp_filt)){
       if(interval(temp_filt$time[start], temp_filt$time[count])/dweeks(1) >= 1){
         
+        word_occurances <- unlist(browse_summary %>% 
+                          filter(time >= temp_filt$time[start] & 
+                                   time <= temp_filt$time[count]) %>% 
+                          select(words))
+        
+        word_occurances <- unlist(table(word_occurances))
+        
+        # word_occurances <- data_frame(words = word_occurances)
+        
+        tops <- data_frame(cats = top_words$Var1)
+        
+        tops$freq <- sapply(1:nrow(tops), function(x, y, z) 
+          if_else(any(names(y) %in% z[x, "cats"]), as.numeric(y[unlist(z[x, "cats"])]), 0), 
+          y = word_occurances, z = tops)
+        
+        # word_occurances <- unlist(word_occurances)
+        # word_occurances_freq <- as_data_frame(table(word_occurances[word_occurances %in% top_words]))
+        
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
                                                       y = lat), 
@@ -125,7 +165,26 @@ plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_pe
                                                     y = lat), 
                      alpha = 0.5, fill = "red", size = 3, colour = "red")
         
-        print(p)
+        word_freq <- ggplot(data = tops, aes(x = cats, y = freq, fill = factor(cats))) + 
+          geom_col() + 
+          theme(axis.ticks.x =element_blank(), axis.text.x=element_blank())
+        
+        
+        # op <- par(mfrow=c(1,2), pty = "s")
+          
+        # p <- plot_grid(p, word_freq, ncol = 2)  
+        
+        # p
+        # word_freq
+        
+        # par(op)
+        
+        # dev.off()
+        
+        grid.newpage()
+        pushViewport(viewport(layout = grid.layout(1, 2), width = 1, height = 0.5))
+        print(p, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+        print(word_freq, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
         
         start = count
         
@@ -154,20 +213,6 @@ plot_map <- function(location, zoom = 10, location_summary, period = 10, plot_pe
   
 }
 
-# filter for Google Search and cleaning
-
-browse_summary <- browse_summary %>% 
-  filter(str_detect(title, " - Google Search$")) %>% 
-  mutate(title = str_sub(title, 1, str_locate(title, " - Google Search")[ ,1] - 1)) %>% 
-  distinct(str_sub(time, 1, 13), title, .keep_all = TRUE) %>% 
-  mutate(words = str_split(title, pattern = " "))
-
-# for (row in 1:nrow(browse_summary)){
-#   for (count in browse_summary[row, "words"][[1]]){
-#     
-#   }
-# }
-
 
 # turn device off if it is on
 if (!is.null(dev.list())){
@@ -181,7 +226,7 @@ do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TR
 # zoom value should be between 3 and 21. (3 = continent, 21 = building)
 
 saveHTML({plot_map(location = "Vancouver", zoom = 10, alpha = 0.5,
-                   location_summary, 
+                   location_summary = location_summary, browse_summary = browse_summary, 
                    period = 10, 
                    plot_period = "weekly")}, 
          img.name = "anim_plot", imgdir = "../results/anim_dir", 
