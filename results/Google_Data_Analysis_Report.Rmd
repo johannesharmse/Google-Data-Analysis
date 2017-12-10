@@ -1,0 +1,62 @@
+---
+title: 'Googe Data Analysis Report'
+author: 'Johannes Harmse'
+output:
+  github_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<br>
+
+# Google Data Visualisation
+<br>
+
+## Hypothesis
+<br>
+
+A Google user's browser history is dependent on his/her location due to having different interests when in different locations.
+<br>
+<br>
+
+## Methodology
+<br>
+
+We are using two datasets to test this hypothesis. Each Google user has his/her own personal data collection from Google.
+<br>
+<br>
+
+For this analysis we need a Google user's location and browser history datasets. This is easily obtainable from [Google Data](https://support.google.com/accounts/answer/3024190?hl=en).
+<br>
+<br>
+
+We want to visually compare different time periods and locations movement for a given user to determine whether the user's Google most popular search words stay consistent or changes over time and location.
+<br>
+<br>
+
+If you ran the following scripts, your visualisation should be displayed below.
+
+* `../src/data_import.R`
+<br>
+
+* `../src/data_cleaning.R`
+<br>
+
+* `../src/data_visuaulisation.R`
+<br>
+<br>
+
+## Results
+```{r, echo = FALSE}
+htmltools::includeHTML("anim.html")
+```
+
+## Conclusion
+<br> 
+
+From the visualisation, you should be able to conclude whether or not your searches stay the same over time across the location you have specified.
+<br>
+<br>
+
+In general, it has been found that users' most popular searches vary a lot in frequency over time and location.

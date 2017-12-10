@@ -181,7 +181,7 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
           geom_point(data = temp_filt[count, ], aes(x = long, 
                                                     y = lat), 
                      alpha = 0.5, fill = "red", size = 3, colour = "red") + 
-          labs(title = paste0("Period: ", as.character(substr(temp_filt$time[start], 1, 10)), "-", 
+          labs(title = paste0(location, " - Period: ", as.character(substr(temp_filt$time[start], 1, 10)), "-", 
                               as.character(substr(temp_filt$time[count], 1, 10))), 
                x = "Longitude", 
                y = "Latitude")
@@ -243,7 +243,7 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
           geom_point(data = temp_filt[count, ], aes(x = long, 
                                                     y = lat), 
                      alpha = 0.5, fill = "red", size = 3, colour = "red") + 
-          labs(title = paste0("Period: ", as.character(substr(temp_filt$time[start], 1, 10)), "-", 
+          labs(title = paste0(location, " - Period: ", as.character(substr(temp_filt$time[start], 1, 10)), "-", 
                               as.character(substr(temp_filt$time[count], 1, 10))), 
                x = "Longitude", 
                y = "Latitude")
@@ -305,7 +305,7 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
           geom_point(data = temp_filt[count, ], aes(x = long, 
                                                     y = lat), 
                      alpha = 0.5, fill = "red", size = 3, colour = "red") + 
-          labs(title = paste0("Period: ", as.character(substr(temp_filt$time[start], 1, 10)), "-", 
+          labs(title = paste0(location, " - Period: ", as.character(substr(temp_filt$time[start], 1, 10)), "-", 
                               as.character(substr(temp_filt$time[count], 1, 10))), 
                x = "Longitude", 
                y = "Latitude")
@@ -353,12 +353,12 @@ do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TR
 
 # zoom value should be between 3 and 21. (3 = continent, 21 = building)
 
-saveHTML({plot_map(location = "Cape Town", zoom = 10, alpha = 0.1,
+saveHTML({plot_map(location = "UBC", zoom = 11, alpha = 0.1,
                    location_summary = location_summary, browse_summary = browse_summary, 
                    plot_period = "weekly")}, 
          img.name = "anim_plot", imgdir = "../results/anim_dir", 
          htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
-         verbose =FALSE, interval = 0.75, ani.width = 720, ani.height = 720)
+         verbose =FALSE, interval = 1, ani.width = 720, ani.height = 720)
 
 graphics.off()
 
