@@ -1,3 +1,13 @@
+# DOCUMENTATION
+# 
+# The purpose of this script is to clean personal browser history and location data, convert the data into the 
+# correct formats and filter the data as appropriate for later visualisation.
+# 
+# No arguments should be speicified within this script. The data objects that were created during data importing 
+# are used.
+# 
+# The cleaned, formatted and filtered datasets are written to temporary directories that will be called during visualisation.
+
 library(tidyverse)
 library(lubridate)
 library(forcats)
