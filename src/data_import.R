@@ -1,3 +1,21 @@
+# DOCUMENTATION
+# 
+# The purpose of this script is to import personal Google location and browser history data into R.
+# If a user wants to visualise his/her data, they must first download their personal Google location (JSON) and browser history (JSON)
+# data by followign the instructions at [Download Instructions](https://support.google.com/accounts/answer/3024190?hl=en).
+# 
+# The script tries to find personal user data within the directory data folder. Personal browser history data needs to be stored in 
+# the Chrome subfolder, and the location data needs to be stored in the Location History subfolder. Both data files should be in 
+# .json format (downloadable format from Google).
+# 
+# If a user has not pasted the necessary datasets in the correct locations, the script will search for the standard sample data 
+# and use that as data sources.
+# 
+# No arguments should be specified within this script. 
+#
+# The script writes the data sources as R objects to a location where the next script will call it from.
+
+
 library(rjson)
 library(stringr)
 
