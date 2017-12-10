@@ -39,8 +39,6 @@
 
 library(tidyverse)
 library(lubridate)
-# library(forcats)
-# devtools::install_github("dgrtwo/gganimate")
 library(gganimate)
 library(ggmap)
 library(animation)
@@ -50,6 +48,7 @@ library(png)
 library(grid)
 library(cowplot)
 
+# load cleaned datasets
 
 browse_summary <- readRDS(file = "../data/R_temp/browse_summary.rds")
 location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
@@ -59,6 +58,7 @@ location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
 plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot_period = "weekly", alpha = 0.2, 
                      stop_words_dir = "../data/additional/stopwords.csv", n_words = 10){
   
+  # stop word document used for eliminating words from analysis
   
   stop_words <- read_csv(stop_words_dir)
   
@@ -72,15 +72,17 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
     mutate(words = list(words = unlist(str_split(title, pattern = " "))[!(unlist(str_split(title, pattern = " ")) %in% unlist(stop_words$words))]), 
            ymd = NULL)
   
+  
+  # identify the top words that the user searches for
+  
   top_words <- as_data_frame(table(unlist(browse_summary$words))) %>% 
     top_n(n, n = n_words)
-    # top_n(10, beta) %>%
-    # ungroup() %>%
-    # arrange(topic, -beta)
   
-  # location_summary <- location_summary
+  # use Google API to retrieve map of location
   
   mapData <- get_googlemap(location, zoom = zoom)
+  
+  # refit borders for optimal visualization
   
   borders <- attr(mapData, which = "bb")
   
@@ -98,17 +100,14 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
              lat <= borders$ur.lat & 
              lat >= borders$ll.lat)
   
-  # zoom <- floor(10/max((max(location_summary$long) - min(location_summary$long)/(borders$ur.lon - borders$ll.lon)), 
-  #              (max(location_summary$lat) - min(location_summary$lat))/(borders$ur.lat - borders$ll.lat)))
-  
-  # center <- c(min(location_summary$long) + (max(location_summary$long) - min(location_summary$long))/2, 
-  #            min(location_summary$lat) + (max(location_summary$lat) - min(location_summary$lat))/2)
-  
   center <- c(median(location_summary$long), median(location_summary$lat))
   
-  # mapData <- get_googlemap(center = center, zoom = zoom)
-  # borders <- attr(mapData, which = "bb")
+  
+  # retrieve re-fitted map using Google API
+  
   mapplot <- ggmap(get_googlemap(center = center, zoom = zoom), extent = "device")
+  
+  # set aesthetics for map
   
   lon_breaks <- mapplot$data$lon
   lat_breaks <- mapplot$data$lat
@@ -121,11 +120,15 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
             axis.title.x=element_blank(),
             axis.title.y=element_blank())
   
+  
+  # save map as image file that will be re-used to prevent exausting query limit
+  
   png(filename = "../results/base_map.png")
   print(mapplot)
   dev.off()
   
-
+  # plot image as backdrop for visualizations
+  
   base_map <- readPNG(source = "../results/base_map.png")
   ggmapdata <- rasterGrob(base_map, interpolate=TRUE)
   
@@ -136,6 +139,9 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
         geom="blank") +
     annotation_custom(ggmapdata, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)
   
+  
+  # declare variables for looping over time range
+  
   temp_filt <- location_summary
   
   start = 1
@@ -143,36 +149,35 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   lat_start = 0
   long_start = 0
   
-  # plot_seq <- seq(period, nrow(temp_filt), 1)
-  
   temp = data_frame()
   
   p <- ggmapdata
   
-  # print(p)
+  # declare seperate processes for differnt time period types to speed up time complexity
+  # enter process if a cycle of a day, week or year has been identified
   
   if (plot_period == "daily"){
     for (count in 1:nrow(temp_filt)){
       if(interval(temp_filt$time[start], temp_filt$time[count])/ddays(1) >= 1){
         
+        # check which search terms have occurred in time period
         word_occurances <- unlist(browse_summary %>% 
                                     filter(time >= temp_filt$time[start] & 
                                              time <= temp_filt$time[count]) %>% 
                                     select(words))
         
+        # count occurances of each search word
         word_occurances <- unlist(table(word_occurances))
-        
-        # word_occurances <- data_frame(words = word_occurances)
-        
+
+        # declare new data frame for top search words
         tops <- data_frame(cats = top_words$Var1)
         
+        # count how many times top search words occurred within given time range
         tops$freq <- sapply(1:nrow(tops), function(x, y, z) 
           if_else(any(names(y) %in% z[x, "cats"]), as.numeric(y[unlist(z[x, "cats"])]), 0), 
           y = word_occurances, z = tops)
         
-        # word_occurances <- unlist(word_occurances)
-        # word_occurances_freq <- as_data_frame(table(word_occurances[word_occurances %in% top_words]))
-        
+        # declare location plot
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
                                                       y = lat), 
@@ -186,34 +191,25 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
                x = "Longitude", 
                y = "Latitude")
         
+        # declare top word frequency plot
         word_freq <- ggplot(data = tops, aes(x = cats, y = freq, fill = factor(cats))) + 
           geom_col() + 
           theme(axis.ticks.x =element_blank(), axis.text.x=element_blank()) + 
           labs(x = "Search terms", y = "Frequency") + 
           scale_fill_discrete("")
         
-        
-        # op <- par(mfrow=c(1,2), pty = "s")
-        
-        # p <- plot_grid(p, word_freq, ncol = 2)  
-        
-        # p
-        # word_freq
-        
-        # par(op)
-        
-        # dev.off()
-        
+        # print two plots on grid to form one image
         grid.newpage()
         pushViewport(viewport(layout = grid.layout(1, 2), width = 1, height = 0.5))
         print(p, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
         print(word_freq, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
         
+        # skip loop count to end of current period
         start = count
         
       }
     }
-  }else if (plot_period == "weekly"){
+  }else if (plot_period == "weekly"){ # same process as daily
     for (count in 2:nrow(temp_filt)){
       if(interval(temp_filt$time[start], temp_filt$time[count])/dweeks(1) >= 1){
         
@@ -224,16 +220,11 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
         
         word_occurances <- unlist(table(word_occurances))
         
-        # word_occurances <- data_frame(words = word_occurances)
-        
         tops <- data_frame(cats = top_words$Var1)
         
         tops$freq <- sapply(1:nrow(tops), function(x, y, z) 
           if_else(any(names(y) %in% z[x, "cats"]), as.numeric(y[unlist(z[x, "cats"])]), 0), 
           y = word_occurances, z = tops)
-        
-        # word_occurances <- unlist(word_occurances)
-        # word_occurances_freq <- as_data_frame(table(word_occurances[word_occurances %in% top_words]))
         
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
@@ -253,18 +244,6 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
           theme(axis.ticks.x =element_blank(), axis.text.x=element_blank()) + 
           labs(x = "Search terms", y = "Frequency") + 
           scale_fill_discrete("")
-        
-        
-        # op <- par(mfrow=c(1,2), pty = "s")
-          
-        # p <- plot_grid(p, word_freq, ncol = 2)  
-        
-        # p
-        # word_freq
-        
-        # par(op)
-        
-        # dev.off()
         
         grid.newpage()
         pushViewport(viewport(layout = grid.layout(1, 2), width = 1, height = 0.5))
@@ -275,7 +254,7 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
         
       }
     }
-  }else if (plot_period == "annually"){
+  }else if (plot_period == "annually"){ # same process as daily
     for (count in 1:nrow(temp_filt)){
       if(interval(temp_filt$time[start], temp_filt$time[count])/dyears(1) >= 1){
         
@@ -285,17 +264,13 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
                                     select(words))
         
         word_occurances <- unlist(table(word_occurances))
-        
-        # word_occurances <- data_frame(words = word_occurances)
+
         
         tops <- data_frame(cats = top_words$Var1)
         
         tops$freq <- sapply(1:nrow(tops), function(x, y, z) 
           if_else(any(names(y) %in% z[x, "cats"]), as.numeric(y[unlist(z[x, "cats"])]), 0), 
           y = word_occurances, z = tops)
-        
-        # word_occurances <- unlist(word_occurances)
-        # word_occurances_freq <- as_data_frame(table(word_occurances[word_occurances %in% top_words]))
         
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
@@ -315,18 +290,6 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
           theme(axis.ticks.x =element_blank(), axis.text.x=element_blank()) + 
           labs(x = "Search terms", y = "Frequency") + 
           scale_fill_discrete("")
-        
-        
-        # op <- par(mfrow=c(1,2), pty = "s")
-        
-        # p <- plot_grid(p, word_freq, ncol = 2)  
-        
-        # p
-        # word_freq
-        
-        # par(op)
-        
-        # dev.off()
         
         grid.newpage()
         pushViewport(viewport(layout = grid.layout(1, 2), width = 1, height = 0.5))
@@ -351,6 +314,7 @@ if (!is.null(dev.list())){
 
 do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TRUE)))
 
+# specify user requirements within saveHTML function
 # zoom value should be between 3 and 21. (3 = continent, 21 = building)
 
 saveHTML({plot_map(location = "UBC", zoom = 11, alpha = 0.1,
@@ -360,5 +324,6 @@ saveHTML({plot_map(location = "UBC", zoom = 11, alpha = 0.1,
          htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
          verbose =FALSE, interval = 1, ani.width = 720, ani.height = 720)
 
+# prevent from plotting
 graphics.off()
 
