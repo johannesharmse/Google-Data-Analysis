@@ -2,11 +2,11 @@
 
 The main objective of *Google Data Analysis* is to provide a personal data analytics tool to any Google user. Google captures a massive amount of personal information for every person with a Google account. Google data ranges from browser history, location data, YouTube data, and much more. This analytics tool allows any person, with or without coding experience, to analyze personal information as captured by Google and potentially make a few interesting conclusions.
 
-![worldmap](additional/images/worldmap.gif)
+![worldmap](additional/images/UBC.gif)
 
 ## Data
 
-At present, browser history and location sample datasets are provided in the repository. Due to privacy issues, the full datasets cannot be made public.
+Sample browser history and location datasets are provided in the repository.
 
 However, if you are interested in this analysis, it is encouraged that you download your own personal Google datasets and use it as replacement for the sample datasets. Visit [Personal Google Data](https://takeout.google.com/settings/takeout) to download your data.
 
@@ -73,6 +73,28 @@ Every analysis done during hypothesis testing needs to be communicated in a simp
 6. Visualise personal location data on map. The `tidyverse` R package provides sufficient resources to generate maps and visualise location data as points on top of it.
 
 7. Use aesthetics, such as colour and size of points to visualise which were the most popular topics browsed per location.
+
+## How to use
+
+1. Clone the repository to a local directory. You can run `git clone https://github.com/johannesharmse/Google-Data-Analysis.git` in your command prompt or bash to store this repository locally.
+
+2. It is encouraged that you use your own personal data for this analysis. As a last resort, the scripts will use the repository sample data for the analysis. Go to [Personal Google Data](https://takeout.google.com/settings/takeout) and follow the instructions on how to download your data. The following two datasets need to be downloaded:
+
+  * Chrome: BrowserHistory.json
+  * Location History: Location History.json
+
+3. After downloading the data, paste the two downloaded folders (Chrome and Location History) in the data folder of the cloned repository.
+
+4. Before running the scripts, you might want to alter visualisation arguments. Open `src/data_visualization.R` to specify arguments. When opening the file, scroll to the bottom of the script and change the arguments of the `saveHTML` function to your liking. This is where you can change the location, zoom factor and time frequency of plots. Save and close the file after changing the arguments.
+
+4. Navigate to the `src` folder and run the scripts in the sequence below:
+
+  - `data_import.R`
+  - `data_cleaning.R`
+  - `data_visualization.R`
+  - `report_render.R`
+
+5. To see the files that you might be interested in, go to the `results` folder to find all the generated files. The most comprehensive file is `Google_Data_Analysis_Report.html`. Open the file in one of your local browsers to see the results of the analysis.
 
 ## How to contribute
 
