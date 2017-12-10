@@ -1,3 +1,42 @@
+# DOCUMENTATION: 
+# 
+# The purpose of this script is to visualise personal Google location data and Google browser history.
+# 
+# The script can be cusomised by changing the argument values within the saveHTML function at the end of this script. 
+# The saveHTML function mainly relies on the plot_map function.
+# 
+# The following arguments can be specified for the plot_map function. Type ?saveHTML to view other arguments eligible for change.
+#
+# location: Character string. Search term for the location that you want visualised. Google API is used to perform the search for the location.
+# 
+# zoom: Integer (default = 10). The zoom factor for the location map. The zoom value has to be within the range 3-21, 
+# where 3 is typically continent view and 21 is typically building view.
+# 
+# location_summary: Dataframe (default = data frame loaded from data cleaning step). 
+# This refers to the location summarised data that will be mapped. It is not recommended to change this.
+# 
+# browse_summary: Dataframe (default = data frame loaded from data cleaning step).
+# This refers to the browser history summarised data that will be used to visualise search terms. 
+# It is not recommended to change this.
+# 
+# plot_period: Character string (default = "weekly"). Choose from c("daily", "weekly", "annually"). 
+# This specifies the plotting period for the location points and search term analysis.
+# 
+# alpha: Numerical between 0 and 1 (default = 0.2). The transparency value for the location points visualised.
+# 
+# stop_words_dir: Character string (default: "../data/additional/stopwords.csv"). 
+# Specifies the csv file location relative to the working directory for stop words not to be used in Google Search term analysis.
+# It is not recommended to change this location, but rather add on stop words within this file if desired.
+#
+# n_words: Integer (default = 10). The number of most popular search terms to report on.
+# 
+# 
+# 
+# The saveHTML function generates an HMTL animation by creating a number of plots and then calling each plot image from an HTML file.
+# The folder and file locations, animation interval, height and width can be specified in the saveHTML function. 
+# Try ?saveHTML for more information on this function.
+
+
 library(tidyverse)
 library(lubridate)
 # library(forcats)
@@ -17,11 +56,11 @@ location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
 
 # Function for plotting daily, weekly and annual location data points
 
-plot_map <- function(location, zoom = 10, location_summary, browse_summary, period = 10, plot_period = "daily", alpha = 0.2, 
-                     stop_words_url = "../data/additional/stopwords.csv", n_words = 10){
+plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot_period = "weekly", alpha = 0.2, 
+                     stop_words_dir = "../data/additional/stopwords.csv", n_words = 10){
   
   
-  stop_words <- read_csv(stop_words_url)
+  stop_words <- read_csv(stop_words_dir)
   
   # filter for Google Search and cleaning
   
@@ -316,7 +355,6 @@ do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TR
 
 saveHTML({plot_map(location = "Cape Town", zoom = 10, alpha = 0.1,
                    location_summary = location_summary, browse_summary = browse_summary, 
-                   period = 10, 
                    plot_period = "weekly")}, 
          img.name = "anim_plot", imgdir = "../results/anim_dir", 
          htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
