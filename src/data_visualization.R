@@ -110,25 +110,65 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, peri
   
   p <- ggmapdata
   
-  print(p)
+  # print(p)
   
   if (plot_period == "daily"){
     for (count in 1:nrow(temp_filt)){
       if(interval(temp_filt$time[start], temp_filt$time[count])/ddays(1) >= 1){
         
-        searches <- paste(browse_summary$title)
+        word_occurances <- unlist(browse_summary %>% 
+                                    filter(time >= temp_filt$time[start] & 
+                                             time <= temp_filt$time[count]) %>% 
+                                    select(words))
+        
+        word_occurances <- unlist(table(word_occurances))
+        
+        # word_occurances <- data_frame(words = word_occurances)
+        
+        tops <- data_frame(cats = top_words$Var1)
+        
+        tops$freq <- sapply(1:nrow(tops), function(x, y, z) 
+          if_else(any(names(y) %in% z[x, "cats"]), as.numeric(y[unlist(z[x, "cats"])]), 0), 
+          y = word_occurances, z = tops)
+        
+        # word_occurances <- unlist(word_occurances)
+        # word_occurances_freq <- as_data_frame(table(word_occurances[word_occurances %in% top_words]))
         
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
                                                       y = lat), 
-                     fill = "light blue", size = 2, 
-                     alpha = alpha,
+                     fill = "light blue", size = 2, alpha = alpha,
                      colour = "blue") + 
           geom_point(data = temp_filt[count, ], aes(x = long, 
                                                     y = lat), 
-                     alpha = 0.5, fill = "red", size = 3, colour = "red")
+                     alpha = 0.5, fill = "red", size = 3, colour = "red") + 
+          labs(title = paste0("Period: ", as.character(substr(temp_filt$time[start], 1, 10)), "-", 
+                              as.character(substr(temp_filt$time[count], 1, 10))), 
+               x = "Longitude", 
+               y = "Latitude")
         
-        print(p)
+        word_freq <- ggplot(data = tops, aes(x = cats, y = freq, fill = factor(cats))) + 
+          geom_col() + 
+          theme(axis.ticks.x =element_blank(), axis.text.x=element_blank()) + 
+          labs(x = "Search terms", y = "Frequency") + 
+          scale_fill_discrete("")
+        
+        
+        # op <- par(mfrow=c(1,2), pty = "s")
+        
+        # p <- plot_grid(p, word_freq, ncol = 2)  
+        
+        # p
+        # word_freq
+        
+        # par(op)
+        
+        # dev.off()
+        
+        grid.newpage()
+        pushViewport(viewport(layout = grid.layout(1, 2), width = 1, height = 0.5))
+        print(p, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+        print(word_freq, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
         
         start = count
         
@@ -163,11 +203,17 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, peri
                      colour = "blue") + 
           geom_point(data = temp_filt[count, ], aes(x = long, 
                                                     y = lat), 
-                     alpha = 0.5, fill = "red", size = 3, colour = "red")
+                     alpha = 0.5, fill = "red", size = 3, colour = "red") + 
+          labs(title = paste0("Period: ", as.character(substr(temp_filt$time[start], 1, 10)), "-", 
+                              as.character(substr(temp_filt$time[count], 1, 10))), 
+               x = "Longitude", 
+               y = "Latitude")
         
         word_freq <- ggplot(data = tops, aes(x = cats, y = freq, fill = factor(cats))) + 
           geom_col() + 
-          theme(axis.ticks.x =element_blank(), axis.text.x=element_blank())
+          theme(axis.ticks.x =element_blank(), axis.text.x=element_blank()) + 
+          labs(x = "Search terms", y = "Frequency") + 
+          scale_fill_discrete("")
         
         
         # op <- par(mfrow=c(1,2), pty = "s")
@@ -194,16 +240,59 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, peri
     for (count in 1:nrow(temp_filt)){
       if(interval(temp_filt$time[start], temp_filt$time[count])/dyears(1) >= 1){
         
+        word_occurances <- unlist(browse_summary %>% 
+                                    filter(time >= temp_filt$time[start] & 
+                                             time <= temp_filt$time[count]) %>% 
+                                    select(words))
+        
+        word_occurances <- unlist(table(word_occurances))
+        
+        # word_occurances <- data_frame(words = word_occurances)
+        
+        tops <- data_frame(cats = top_words$Var1)
+        
+        tops$freq <- sapply(1:nrow(tops), function(x, y, z) 
+          if_else(any(names(y) %in% z[x, "cats"]), as.numeric(y[unlist(z[x, "cats"])]), 0), 
+          y = word_occurances, z = tops)
+        
+        # word_occurances <- unlist(word_occurances)
+        # word_occurances_freq <- as_data_frame(table(word_occurances[word_occurances %in% top_words]))
+        
         p <- ggmapdata + 
           geom_point(data = temp_filt[1:count, ], aes(x = long, 
                                                       y = lat), 
-                      fill = "light blue", size = 2, alpha = alpha,
+                     fill = "light blue", size = 2, alpha = alpha,
                      colour = "blue") + 
           geom_point(data = temp_filt[count, ], aes(x = long, 
                                                     y = lat), 
-                     alpha = 0.5, fill = "red", size = 3, colour = "red")
+                     alpha = 0.5, fill = "red", size = 3, colour = "red") + 
+          labs(title = paste0("Period: ", as.character(substr(temp_filt$time[start], 1, 10)), "-", 
+                              as.character(substr(temp_filt$time[count], 1, 10))), 
+               x = "Longitude", 
+               y = "Latitude")
         
-        print(p)
+        word_freq <- ggplot(data = tops, aes(x = cats, y = freq, fill = factor(cats))) + 
+          geom_col() + 
+          theme(axis.ticks.x =element_blank(), axis.text.x=element_blank()) + 
+          labs(x = "Search terms", y = "Frequency") + 
+          scale_fill_discrete("")
+        
+        
+        # op <- par(mfrow=c(1,2), pty = "s")
+        
+        # p <- plot_grid(p, word_freq, ncol = 2)  
+        
+        # p
+        # word_freq
+        
+        # par(op)
+        
+        # dev.off()
+        
+        grid.newpage()
+        pushViewport(viewport(layout = grid.layout(1, 2), width = 1, height = 0.5))
+        print(p, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+        print(word_freq, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
         
         start = count
         
@@ -225,13 +314,13 @@ do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TR
 
 # zoom value should be between 3 and 21. (3 = continent, 21 = building)
 
-saveHTML({plot_map(location = "Vancouver", zoom = 10, alpha = 0.5,
+saveHTML({plot_map(location = "Cape Town", zoom = 10, alpha = 0.1,
                    location_summary = location_summary, browse_summary = browse_summary, 
                    period = 10, 
                    plot_period = "weekly")}, 
          img.name = "anim_plot", imgdir = "../results/anim_dir", 
          htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
-         verbose =FALSE, interval = 0.25, ani.width = 480, ani.height = 480)
+         verbose =FALSE, interval = 0.75, ani.width = 720, ani.height = 720)
 
 graphics.off()
 
