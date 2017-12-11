@@ -69,7 +69,7 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   # filter for Google Search and cleaning
   
   browse_summary <- browse_summary %>% 
-    filter(str_detect(title, paste0(" - ", search_filter, "$"))) %>% 
+    filter(str_detect(title, paste0(" - ", search_filter, "$", collapse = "|"))) %>% 
     mutate(title = tolower(title)) %>% 
     mutate(title = str_sub(title, 1, 
                            max(str_locate(title, paste0(" - ", search_filter))[ ,1][!is.na(str_locate(title, paste0(" - ", search_filter))[ ,1])] - 1))) %>% 
