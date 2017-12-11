@@ -66,6 +66,7 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   # stop word document used for eliminating words from analysis
   
   stop_words <- read_csv(stop_words_dir)
+  stops <- paste0(stop_words$words, collapse = "|")
   
   # filter for Google Search and cleaning
   
@@ -73,11 +74,20 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
     mutate(title = tolower(title)) %>% 
     filter(str_detect(title, search_filter_filter)) %>% 
     mutate(title = str_sub(title, 1, 
-                           str_locate(title, search_filter_sub)[ ,1] - 1)) %>% 
-    distinct(ymd = str_sub(time, 1, 13), title, .keep_all = TRUE) %>% 
-    group_by(time) %>% 
-    mutate(words = list(words = unlist(str_split(title, pattern = " "))[!(unlist(str_split(title, pattern = " ")) %in% unlist(stop_words$words))]), 
-           ymd = NULL)
+                           str_locate(title, search_filter_sub)[ ,1] - 1), 
+           words = NA) %>% 
+    distinct(ymd = str_sub(time, 1, 13), title, .keep_all = TRUE)# %>% 
+    # group_by(time) %>% 
+  for (row in 1:nrow(browse_summary)){
+    
+    temp = list(unlist(strsplit(unlist(browse_summary[row, "title"]), split = " "))[!grepl(stops, unlist(strsplit(unlist(browse_summary[row, "title"]), split = " ")), fixed = FALSE)])  
+    
+    if(length(unlist(temp)) > 0){
+      browse_summary[[row, "words"]] = temp
+    }
+    
+  }
+    browse_summary$ymd = NULL
   
   
   # identify the top words that the user searches for
@@ -326,7 +336,7 @@ do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TR
 
 saveHTML({plot_map(location = "UBC", zoom = 11, alpha = 0.1,
                    location_summary = location_summary, browse_summary = browse_summary, 
-                   plot_period = "weekly", search_filter = c("Google Play Music"))}, 
+                   plot_period = "weekly", search_filter = c("YouTube"))}, 
          img.name = "anim_plot", imgdir = "../results/anim_dir", 
          htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
          verbose =FALSE, interval = 1, ani.width = 720, ani.height = 720)
