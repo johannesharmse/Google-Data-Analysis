@@ -60,7 +60,8 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   
   # make search term lower case for more dynamic string detection and filtering
    
-  search_filter = tolower(search_filter)
+  search_filter_filter = tolower(paste0(" - ", search_filter, "$", collapse = "|"))
+  search_filter_sub = tolower(paste0(" - ", search_filter, collapse = "|"))
   
   # stop word document used for eliminating words from analysis
   
@@ -69,10 +70,10 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   # filter for Google Search and cleaning
   
   browse_summary <- browse_summary %>% 
-    filter(str_detect(title, paste0(" - ", search_filter, "$", collapse = "|"))) %>% 
     mutate(title = tolower(title)) %>% 
+    filter(str_detect(title, search_filter_filter)) %>% 
     mutate(title = str_sub(title, 1, 
-                           max(str_locate(title, paste0(" - ", search_filter))[ ,1][!is.na(str_locate(title, paste0(" - ", search_filter))[ ,1])] - 1))) %>% 
+                           str_locate(title, search_filter_sub)[ ,1] - 1)) %>% 
     distinct(ymd = str_sub(time, 1, 13), title, .keep_all = TRUE) %>% 
     group_by(time) %>% 
     mutate(words = list(words = unlist(str_split(title, pattern = " "))[!(unlist(str_split(title, pattern = " ")) %in% unlist(stop_words$words))]), 
