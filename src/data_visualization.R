@@ -58,6 +58,10 @@ location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
 plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot_period = "weekly", alpha = 0.2, 
                      stop_words_dir = "../data/additional/stopwords.csv", n_words = 10, search_filter = c("Google Search")){
   
+  # make search term lower case for more dynamic string detection and filtering
+   
+  search_filter = tolower(serarch_filter)
+  
   # stop word document used for eliminating words from analysis
   
   stop_words <- read_csv(stop_words_dir)
@@ -66,6 +70,7 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   
   browse_summary <- browse_summary %>% 
     filter(any(str_detect(title, paste0(" - ", search_filter, "$")))) %>% 
+    mutate(title = tolower(title)) %>% 
     mutate(title = str_sub(title, 1, 
                            max(str_locate(title, paste0(" - ", search_filter))[ ,1][!is.na(str_locate(title, paste0(" - ", search_filter))[ ,1])] - 1))) %>% 
     distinct(ymd = str_sub(time, 1, 13), title, .keep_all = TRUE) %>% 
