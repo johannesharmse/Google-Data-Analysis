@@ -56,7 +56,7 @@ location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
 # Function for plotting daily, weekly and annual location data points
 
 plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot_period = "weekly", alpha = 0.2, 
-                     stop_words_dir = "../data/additional/stopwords.csv", n_words = 10){
+                     stop_words_dir = "../data/additional/stopwords.csv", n_words = 10, search_filter = c("Google Search")){
   
   # stop word document used for eliminating words from analysis
   
@@ -65,8 +65,9 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   # filter for Google Search and cleaning
   
   browse_summary <- browse_summary %>% 
-    filter(str_detect(title, " - Google Search$")) %>% 
-    mutate(title = str_sub(title, 1, str_locate(title, " - Google Search")[ ,1] - 1)) %>% 
+    filter(any(str_detect(title, paste0(" - ", search_filter, "$")))) %>% 
+    mutate(title = str_sub(title, 1, 
+                           max(str_locate(title, paste0(" - ", search_filter))[ ,1][!is.na(str_locate(title, paste0(" - ", search_filter))[ ,1])] - 1))) %>% 
     distinct(ymd = str_sub(time, 1, 13), title, .keep_all = TRUE) %>% 
     group_by(time) %>% 
     mutate(words = list(words = unlist(str_split(title, pattern = " "))[!(unlist(str_split(title, pattern = " ")) %in% unlist(stop_words$words))]), 
