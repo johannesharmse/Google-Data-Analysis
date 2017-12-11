@@ -60,7 +60,7 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   
   # make search term lower case for more dynamic string detection and filtering
    
-  search_filter = tolower(serarch_filter)
+  search_filter = tolower(search_filter)
   
   # stop word document used for eliminating words from analysis
   
@@ -69,7 +69,7 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   # filter for Google Search and cleaning
   
   browse_summary <- browse_summary %>% 
-    filter(any(str_detect(title, paste0(" - ", search_filter, "$")))) %>% 
+    filter(str_detect(title, paste0(" - ", search_filter, "$"))) %>% 
     mutate(title = tolower(title)) %>% 
     mutate(title = str_sub(title, 1, 
                            max(str_locate(title, paste0(" - ", search_filter))[ ,1][!is.na(str_locate(title, paste0(" - ", search_filter))[ ,1])] - 1))) %>% 
@@ -325,7 +325,7 @@ do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TR
 
 saveHTML({plot_map(location = "UBC", zoom = 11, alpha = 0.1,
                    location_summary = location_summary, browse_summary = browse_summary, 
-                   plot_period = "weekly")}, 
+                   plot_period = "weekly", search_filter = c("Google Play Music"))}, 
          img.name = "anim_plot", imgdir = "../results/anim_dir", 
          htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
          verbose =FALSE, interval = 1, ani.width = 720, ani.height = 720)
