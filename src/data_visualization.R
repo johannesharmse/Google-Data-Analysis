@@ -77,7 +77,8 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
     mutate(title = str_sub(title, 1, 
                            str_locate(title, search_filter_sub)[ ,1] - 1), 
            words = NA) %>% 
-    distinct(ymd = str_sub(time, 1, 13), title, .keep_all = TRUE)# %>% 
+    distinct(ymd = str_sub(time, 1, 13), title, .keep_all = TRUE) %>% 
+    mutate(title = gsub("\\,|\\-|\\(|\\)|[0-9]", "", title))
     # group_by(time) %>% 
   
   # remove stop words (temp loop for bug)
