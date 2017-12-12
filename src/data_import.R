@@ -23,8 +23,8 @@
 library(rjson)
 library(stringr)
 
-browse_locs <- c("../data/Chrome/BrowserHistory.json", "../data/Chrome/Sample/sample.rds")
-location_locs <- c("../data/Location History/Location History.json", "../data/Location History/Sample/Location History.json")
+browse_locs <- c("data/Chrome/BrowserHistory.json", "data/Chrome/Sample/sample.rds")
+location_locs <- c("data/Location History/Location History.json", "data/Location History/Sample/Location History.json")
 
 locs <- list(browse_locs, location_locs)
 
@@ -58,5 +58,5 @@ for (loc_dir in 1:length(locs)){
   
 }
 
-saveRDS(browse_hist, file = "../data/R_temp/browse_hist.rds")
-saveRDS(location_hist, file = "../data/R_temp/location_hist.rds")
+saveRDS(browse_hist, file = "data/R_temp/browse_hist.rds")
+saveRDS(location_hist, file = "data/R_temp/location_hist.rds")

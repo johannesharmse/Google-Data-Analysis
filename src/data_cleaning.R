@@ -18,8 +18,8 @@ library(forcats)
 # library(NLP)
 library(stringr)
 
-browse_hist <- readRDS(file = "../data/R_temp/browse_hist.rds")
-location_hist <- readRDS(file = "../data/R_temp/location_hist.rds")
+browse_hist <- readRDS(file = "data/R_temp/browse_hist.rds")
+location_hist <- readRDS(file = "data/R_temp/location_hist.rds")
 
 # convert JSON to data frames if personal data was used, otherwise use sample objects
 
@@ -123,6 +123,6 @@ if (nrow(browse_summary) == 0 ||
 }
   
 
-saveRDS(browse_summary, file = "../data/R_temp/browse_summary.rds")
-saveRDS(location_summary, file = "../data/R_temp/location_summary.rds")
+saveRDS(browse_summary, file = "data/R_temp/browse_summary.rds")
+saveRDS(location_summary, file = "data/R_temp/location_summary.rds")
 

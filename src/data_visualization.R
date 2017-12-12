@@ -54,13 +54,13 @@ library(cowplot)
 
 # load cleaned datasets
 
-browse_summary <- readRDS(file = "../data/R_temp/browse_summary.rds")
-location_summary <- readRDS(file = "../data/R_temp/location_summary.rds")
+browse_summary <- readRDS(file = "data/R_temp/browse_summary.rds")
+location_summary <- readRDS(file = "data/R_temp/location_summary.rds")
 
 # Function for plotting daily, weekly and annual location data points
 
 plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot_period = "weekly", alpha = 0.2, 
-                     stop_words_dir = "../data/additional/stopwords.csv", n_words = 10, search_filter = c("Google Search")){
+                     stop_words_dir = "data/additional/stopwords.csv", n_words = 10, search_filter = c("Google Search")){
   
   # make search term lower case for more dynamic string detection and filtering
    
@@ -149,13 +149,13 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   
   # save map as image file that will be re-used to prevent exausting query limit
   
-  png(filename = "../results/base_map.png")
+  png(filename = "results/base_map.png")
   print(mapplot)
   dev.off()
   
   # plot image as backdrop for visualizations
   
-  base_map <- readPNG(source = "../results/base_map.png")
+  base_map <- readPNG(source = "results/base_map.png")
   ggmapdata <- rasterGrob(base_map, interpolate=TRUE)
   
   ggmapdata <- qplot(x = lon_breaks, 
@@ -346,8 +346,8 @@ do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TR
 saveHTML({plot_map(location = "UBC", zoom = 11, alpha = 0.1,
                    location_summary = location_summary, browse_summary = browse_summary, 
                    plot_period = "weekly", search_filter = c("YouTube"))}, 
-         img.name = "anim_plot", imgdir = "../results/anim_dir", 
-         htmlfile = "../results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
+         img.name = "anim_plot", imgdir = "anim_dir", 
+         htmlfile = "results/anim.html", autobrowse = FALSE, title = "Google Location Data", 
          verbose =FALSE, interval = 1, ani.width = 720, ani.height = 720)
 
 # prevent from plotting
