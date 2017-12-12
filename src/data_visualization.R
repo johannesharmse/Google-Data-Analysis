@@ -66,7 +66,8 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
   # stop word document used for eliminating words from analysis
   
   stop_words <- read_csv(stop_words_dir)
-  stops <- paste0(stop_words$words, collapse = "|")
+  stops <- paste0(stop_words$words, collapse = "\\>|\\<")
+  stops <- paste0("\\<", stops, "\\>")
   
   # filter for Google Search and cleaning
   
@@ -78,6 +79,9 @@ plot_map <- function(location, zoom = 10, location_summary, browse_summary, plot
            words = NA) %>% 
     distinct(ymd = str_sub(time, 1, 13), title, .keep_all = TRUE)# %>% 
     # group_by(time) %>% 
+  
+  # remove stop words (temp loop for bug)
+  
   for (row in 1:nrow(browse_summary)){
     
     temp = list(unlist(strsplit(unlist(browse_summary[row, "title"]), split = " "))[!grepl(stops, unlist(strsplit(unlist(browse_summary[row, "title"]), split = " ")), fixed = FALSE)])  
