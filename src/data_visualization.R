@@ -1,3 +1,7 @@
+# AUTHOR: Johannes Harmse
+#
+# Date created: 12-2017
+#
 # DOCUMENTATION: 
 # 
 # The purpose of this script is to visualise personal Google location data and Google browser history.

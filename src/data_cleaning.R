@@ -1,3 +1,7 @@
+# AUTHOR: Johannes Harmse
+#
+# Date created: 12-2017
+#
 # DOCUMENTATION
 # 
 # The purpose of this script is to clean personal browser history and location data, convert the data into the 

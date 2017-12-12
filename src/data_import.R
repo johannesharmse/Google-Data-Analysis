@@ -1,3 +1,7 @@
+# AUTHOR: Johannes Harmse
+#
+# Date created: 12-2017
+#
 # DOCUMENTATION
 # 
 # The purpose of this script is to import personal Google location and browser history data into R.

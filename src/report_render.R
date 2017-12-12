@@ -1,3 +1,7 @@
+# AUTHOR: Johannes Harmse
+#
+# Date created: 12-2017
+#
 # DOCUMENTATION
 
 # The purpose of this code is to automate the rendering process of the Rmd report to knitted formats.
