@@ -338,7 +338,7 @@ if (!is.null(dev.list())){
 
 # remove (if necessary), then generate and write plots to HTML GIF
 
-do.call(try(file.remove), list(list.files("../results/anim_dir", full.names = TRUE)))
+do.call(try(file.remove), list(list.files("results/anim_dir", full.names = TRUE)))
 
 # specify user requirements within saveHTML function
 # zoom value should be between 3 and 21. (3 = continent, 21 = building)
@@ -353,3 +353,7 @@ saveHTML({plot_map(location = "UBC", zoom = 11, alpha = 0.1,
 # prevent from plotting
 graphics.off()
 
+#move image folder to the correct location
+try(dir.create("results/anim_dir"))
+do.call(try(file.copy), list(list.files("anim_dir", full.names = TRUE), "results/anim_dir"))
+try(unlink("anim_dir", recursive = TRUE))

@@ -17,3 +17,7 @@ data_viz:
 
 report_render:
 	RScript src/report_render.R
+
+clean:
+	find results/* ! -name '*.Rmd' -exec rm -f {} +
+	rm -f data/R_temp/*
