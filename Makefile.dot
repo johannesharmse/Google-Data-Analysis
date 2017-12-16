@@ -1,0 +1,11 @@
+digraph G {
+n2[label="all", color="red"];
+n4[label="data_cleaning", color="red"];
+n3[label="data_import", color="red"];
+n5[label="data_viz", color="red"];
+n6[label="report_render", color="red"];
+n4 -> n2 ; 
+n3 -> n2 ; 
+n5 -> n2 ; 
+n6 -> n2 ; 
+}
