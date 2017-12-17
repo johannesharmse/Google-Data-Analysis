@@ -15,11 +15,11 @@ RUN apt-get install -y make git
 # clone, build Google-Data-Analysis
 RUN git clone https://github.com/johannesharmse/Google-Data-Analysis.git
 
-RUN apt-get install aptitude
+RUN yes | apt-get install aptitude
 
-RUN apt-get install libcurl4-openssl-dev
+RUN yes | apt-get install libcurl4-openssl-dev
 
-RUN apt-get install libxml2-dev
+RUN yes | apt-get install libxml2-dev
 
 RUN R -e 'install.packages("packrat")'
 
