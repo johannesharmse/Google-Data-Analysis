@@ -15,6 +15,8 @@ RUN apt-get install -y make git
 # clone, build Google-Data-Analysis
 RUN git clone https://github.com/johannesharmse/Google-Data-Analysis.git
 
+RUN R -e 'install.packages("packrat")'
+
 RUN export R_PROFILE=/Google-Data-Analysis/.Rprofile
 
 WORKDIR "/Google-Data-Analysis"
