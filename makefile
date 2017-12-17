@@ -13,7 +13,7 @@
 # All files created by the makefile when running `make`, can be deleted by running `make clean`.
 
 # declare future user input variables and default values
-copy?="results"
+copy?="nothing"
 location?="UBC"
 zoom?=11
 alpha?=0.1
@@ -22,6 +22,7 @@ search_filter?=c("YouTube")
 
 # data_import data_cleaning data_viz report_render
 # running of scripts in sequence when make is called
+# if copy is specified, files will be copied to local directory.
 all: data_import data_cleaning data_viz report_render
 	if [ "$(copy)" = "all" ]; then\
 		cp -R . ../usr/bin;\

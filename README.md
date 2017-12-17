@@ -94,7 +94,7 @@ docker run -i -t -v LOCAL/DIRECTORY:/google jharmse/google:latest
 
 You have now created an instance of the image within your local directory. Please remember to specify your unique directory in the code above.
 
-You can now run the code, such as the makefile as indicated below.
+You can now run the code, such as the `Makefile`, as indicated below.
 
 ### Method 2: GitHub
 
@@ -118,17 +118,25 @@ You can now run the code, such as the makefile as indicated below.
 
 5. To see the files that you might be interested in, go to the `results` folder to find all the generated files. The most comprehensive file is `Google_Data_Analysis_Report.html`. Open the file in one of your local browsers to see the results of the analysis.
 
-### Run makefile
+### Run Makefile
 
 ![makefile](additional/images/Makefile.png)
 
-After following one of the methods above, you can run the makefile. The makefile takes in a copy argument if you want to specify what you want to copy. The makefile command looks as follow:
+After following one of the methods above, you can run the Makefile. If you would like to copy any files to your local directory, you can specify it using the `copy` argument. An example Makefile command looks as follow:
 
 ```
-make all copy="script"
+make all # runs analysis without copying anything locally
+
+make all copy="results" # saves results locally in usr/bin/
 ```
 
 `copy` can have a value of "script", "results" or "all", depending on what you want to copy locally.
+
+If you would like to delete the files created by the Makefile, you can run the following command:
+
+```
+make clean
+```
 
 ## How to contribute
 
