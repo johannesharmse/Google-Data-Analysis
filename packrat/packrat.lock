@@ -9,6 +9,11 @@ Source: CRAN
 Version: 1.65.0-1
 Hash: 95f62be4d6916aae14a310a8b56a6475
 
+Package: DBI
+Source: CRAN
+Version: 0.7
+Hash: 1ab72df487f06ad5f0de05446cdd4bd6
+
 Package: NLP
 Source: CRAN
 Version: 0.1-11
@@ -102,7 +107,8 @@ Hash: edf948180dbf4105b2ca27f3f8d269f1
 Package: cowplot
 Source: CRAN
 Version: 0.9.1
-Requires: gtable, plyr, scales, ggplot2
+Hash: 4352745ff318bc7530f3c586bfcad6dd
+Requires: ggplot2, gtable, plyr, scales
 
 Package: curl
 Source: CRAN
@@ -170,7 +176,7 @@ Package: ggplot2
 Source: CRAN
 Version: 2.2.1
 Hash: 46e5cb78836848aa44655e577433f54b
-Requires: digest, gtable, lazyeval, plyr, tibble, scales, reshape2
+Requires: digest, gtable, lazyeval, plyr, reshape2, scales, tibble
 
 Package: glue
 Source: CRAN
@@ -209,6 +215,11 @@ Source: CRAN
 Version: 1.3.1
 Hash: 2d32e01e53d532c812052e27a1021441
 Requires: R6, curl, jsonlite, mime, openssl
+
+Package: installr
+Source: CRAN
+Version: 0.19.0
+Requires: stringr
 
 Package: jpeg
 Source: CRAN
@@ -390,8 +401,8 @@ Package: scales
 Source: CRAN
 Version: 0.5.0
 Hash: c108129462eb98e2699b07201fd12acf
-Requires: R6, RColorBrewer, Rcpp, dichromat, labeling, viridisLite,
-    plyr, munsell
+Requires: R6, RColorBrewer, Rcpp, dichromat, labeling, munsell, plyr,
+    viridisLite
 
 Package: selectr
 Source: CRAN
