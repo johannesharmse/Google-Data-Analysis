@@ -86,6 +86,18 @@ If you have Docker installed, you can run the following command to download the 
 docker pull johannesharmse/google
 ```
 
+To create a container from this image, run the following command:
+
+```
+docker run -i -t -v LOCAL/DIRECTORY:/google jharmse/google:latest
+```
+
+You have now created an instance of the image within your local directory. Please remember to specify your unique directory in the code above.
+
+You can now run the code, such as the makefile as indicated below.
+
+### Method 2: GitHub
+
 1. Clone the repository to a local directory. You can run `git clone https://github.com/johannesharmse/Google-Data-Analysis.git` in your command prompt or bash to store this repository locally.
 
 2. It is encouraged that you use your own personal data for this analysis. As a last resort, the scripts will use the repository sample data for the analysis. Go to [Personal Google Data](https://takeout.google.com/settings/takeout) and follow the instructions on how to download your data. The following two datasets need to be downloaded:
@@ -105,6 +117,16 @@ docker pull johannesharmse/google
   - `report_render.R`
 
 5. To see the files that you might be interested in, go to the `results` folder to find all the generated files. The most comprehensive file is `Google_Data_Analysis_Report.html`. Open the file in one of your local browsers to see the results of the analysis.
+
+### Run makefile
+
+After following one of the methods above, you can run the makefile. The makefile takes in a copy argument if you want to specify what you want to copy. The makefile command looks as follow:
+
+```
+make all copy="script"
+```
+
+`copy` can have a value of "script", "results" or "all", depending on what you want to copy locally.
 
 ## How to contribute
 
