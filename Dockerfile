@@ -33,4 +33,5 @@ RUN R -e 'install.packages("packrat")'
 RUN R -e 'packrat::restore()'
 RUN R -e 'packrat::on()'
 
-RUN make
+# Set the default command
+ENTRYPOINT ["bash"]
