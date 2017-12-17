@@ -10,17 +10,28 @@
 # This will be implemented in the near future.
 # At the moment the variables are still hard-coded as input to the functions.
 #
-# All files created by the makefile when running `make`, can be deleted by running `make clean`. 
+# All files created by the makefile when running `make`, can be deleted by running `make clean`.
 
 # declare future user input variables and default values
+copy?="results"
 location?="UBC"
 zoom?=11
 alpha?=0.1
 plot_period?="weekly"
 search_filter?=c("YouTube")
 
+# data_import data_cleaning data_viz report_render
 # running of scripts in sequence when make is called
 all: data_import data_cleaning data_viz report_render
+	if [ "$(copy)" = "all" ]; then\
+		cp -R . ../usr/bin;\
+	fi
+	if [ "$(copy)" = "code" ]; then\
+		cp -R src ../usr/bin;\
+	fi
+	if [ "$(copy)" = "results" ]; then\
+		cp -R results ../usr/bin;\
+	fi
 
 # command for running data import script
 data_import:

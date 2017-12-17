@@ -76,6 +76,16 @@ Every analysis done during hypothesis testing needs to be communicated in a simp
 
 ## How to use
 
+### Method 1: Docker
+
+If you do not want to run the entire analysis locally (possibly due to not having the environment set up on your local machine), the easiest way of running the analysis is by using Docker.
+
+If you have Docker installed, you can run the following command to download the image. This will download the environment that you need to run the analysis, together with the analysis code.
+
+```
+docker pull johannesharmse/google
+```
+
 1. Clone the repository to a local directory. You can run `git clone https://github.com/johannesharmse/Google-Data-Analysis.git` in your command prompt or bash to store this repository locally.
 
 2. It is encouraged that you use your own personal data for this analysis. As a last resort, the scripts will use the repository sample data for the analysis. Go to [Personal Google Data](https://takeout.google.com/settings/takeout) and follow the instructions on how to download your data. The following two datasets need to be downloaded:
