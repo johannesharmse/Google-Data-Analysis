@@ -21,6 +21,8 @@ RUN yes | apt-get install libcurl4-openssl-dev
 
 RUN yes | apt-get install libxml2-dev
 
+RUN yes | apt-get install libssl-dev/unstable
+
 RUN R -e 'install.packages("packrat")'
 
 RUN export R_PROFILE=/Google-Data-Analysis/.Rprofile
