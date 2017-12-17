@@ -120,6 +120,8 @@ You can now run the code, such as the makefile as indicated below.
 
 ### Run makefile
 
+![makefile](additional/images/Makefile.png)
+
 After following one of the methods above, you can run the makefile. The makefile takes in a copy argument if you want to specify what you want to copy. The makefile command looks as follow:
 
 ```
