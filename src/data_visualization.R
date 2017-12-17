@@ -41,6 +41,10 @@
 # Try ?saveHTML for more information on this function.
 
 
+#restore libraries
+
+packrat::restore()
+
 library(tidyverse)
 library(lubridate)
 library(gganimate)

@@ -12,6 +12,9 @@
 # 
 # The cleaned, formatted and filtered datasets are written to temporary directories that will be called during visualisation.
 
+#restore libraries
+packrat::restore()
+
 library(tidyverse)
 library(lubridate)
 library(forcats)
