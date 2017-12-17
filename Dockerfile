@@ -23,10 +23,12 @@ RUN yes | apt-get install libxml2-dev
 
 RUN yes | apt-get install libssl-dev/unstable
 
-RUN R -e 'install.packages("packrat")'
-
 RUN export R_PROFILE=/Google-Data-Analysis/.Rprofile
 
 WORKDIR "/Google-Data-Analysis"
+
+RUN R -e 'install.packages("packrat")'
+RUN R -e 'packrat::restore()'
+RUN R -e 'packrat::on()'
 
 RUN make
