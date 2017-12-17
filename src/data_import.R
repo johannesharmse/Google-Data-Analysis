@@ -21,6 +21,7 @@
 
 #restore libraries
 packrat::restore()
+packrat::on()
 
 library(rjson)
 library(stringr)
