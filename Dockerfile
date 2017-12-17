@@ -23,6 +23,8 @@ RUN yes | apt-get install libxml2-dev
 
 RUN yes | apt-get install libssl-dev/unstable
 
+RUN yes | apt-get install pandoc
+
 RUN export R_PROFILE=/Google-Data-Analysis/.Rprofile
 
 WORKDIR "/Google-Data-Analysis"
