@@ -26,8 +26,23 @@
 library(rjson)
 library(stringr)
 
-browse_locs <- c("data/Chrome/BrowserHistory.json", "data/Chrome/Sample/sample.rds")
-location_locs <- c("data/Location History/Location History.json", "data/Location History/Sample/Location History.json")
+# input arguments
+args = commandArgs(trailingOnly=TRUE)
+
+if(length(args) == 0){
+  stop(message("No arguments are specified"))
+}else{
+  if(args[1] == "default"){
+    browse_locs <- c("data/Chrome/BrowserHistory.json", "data/Chrome/Sample/sample.rds")
+  }else{
+    browse_locs <- c(args[1], "data/Chrome/Sample/sample.rds")
+  }
+  if(args[2] == "default"){
+    location_locs <- c("data/Location History/Location History.json", "data/Location History/Sample/Location History.json")
+  }else{
+    location_locs <- c(args[2], "data/Location History/Sample/Location History.json")
+  }
+}
 
 locs <- list(browse_locs, location_locs)
 

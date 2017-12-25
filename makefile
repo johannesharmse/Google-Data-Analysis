@@ -14,6 +14,10 @@
 
 # declare future user input variables and default values
 copy?="nothing"
+
+history_dir?="default"
+location_dir?="default"
+
 location?="UBC"
 zoom?=11
 alpha?=0.1
@@ -23,7 +27,11 @@ search_filter?=c("YouTube")
 # data_import data_cleaning data_viz report_render
 # running of scripts in sequence when make is called
 # if copy is specified, files will be copied to local directory.
-all: data_import data_cleaning data_viz report_render
+all:
+	data_import history_dir location_dir
+	data_cleaning
+	data_viz
+	report_render
 	if [ "$(copy)" = "all" ]; then\
 		cp -R . ../usr/bin;\
 	fi
@@ -36,7 +44,7 @@ all: data_import data_cleaning data_viz report_render
 
 # command for running data import script
 data_import:
-	Rscript src/data_import.R
+	Rscript src/data_import.R history_dir location_dir
 
 # command for running data cleaning script
 data_cleaning:
