@@ -27,24 +27,11 @@ search_filter?=c("YouTube")
 # data_import data_cleaning data_viz report_render
 # running of scripts in sequence when make is called
 # if copy is specified, files will be copied to local directory.
-all:
-	data_import history_dir location_dir
-	data_cleaning
-	data_viz
-	report_render
-	if [ "$(copy)" = "all" ]; then\
-		cp -R . ../usr/bin;\
-	fi
-	if [ "$(copy)" = "code" ]; then\
-		cp -R src ../usr/bin;\
-	fi
-	if [ "$(copy)" = "results" ]; then\
-		cp -R results ../usr/bin;\
-	fi
+.PHONY: all
 
 # command for running data import script
 data_import:
-	Rscript src/data_import.R history_dir location_dir
+	Rscript src/data_import.R $(history_dir) $(location_dir)
 
 # command for running data cleaning script
 data_cleaning:
@@ -57,6 +44,18 @@ data_viz:
 # command for running report rendering script
 report_render:
 	Rscript src/report_render.R
+
+
+all: data_import data_cleaning data_viz report_render
+	if [ "$(copy)" = "all" ]; then\
+		cp -R . ../usr/bin;\
+	fi
+	if [ "$(copy)" = "code" ]; then\
+		cp -R src ../usr/bin;\
+	fi
+	if [ "$(copy)" = "results" ]; then\
+		cp -R results ../usr/bin;\
+	fi
 
 # cleaning process - deletes all newly created files
 clean:
